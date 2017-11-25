@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.Queue;
+import com.kovacs.swashbuckler.packets.Packet;
 
 /*
  * Wrapper class for I/O streams.
@@ -14,6 +17,11 @@ public class Connection
 	 * The output stream that lets this connection send data.
 	 */
 	private ObjectOutputStream writer;
+
+	/*
+	 * A FIFO queue of the responses from this client.
+	 */
+	private Queue<Packet> responses = new LinkedList<>();
 
 	/*
 	 * The input stream that lets this connection receive data.
@@ -31,13 +39,24 @@ public class Connection
 		{
 			e.printStackTrace();
 		}
+		new Thread()
+		{
+			@Override
+			public synchronized void run()
+			{
+				while (true)
+				{
+					responses.add((Packet) read());
+				}
+			}
+		}.start();
 	}
 
 	/*
 	 * Reads and returns the next object in the stream. Blocks if there are no
 	 * objects.
 	 */
-	public Object read()
+	private Object read()
 	{
 		Object result = null;
 		try
@@ -47,6 +66,7 @@ public class Connection
 		catch (ClassNotFoundException | IOException e)
 		{
 			e.printStackTrace();
+			System.exit(0);
 		}
 		return result;
 	}
@@ -68,19 +88,18 @@ public class Connection
 	}
 
 	/*
-	 * Returns true if there is an object waiting to be read in the input
-	 * stream.
+	 * Returns the first item in the queue.
+	 */
+	public Packet nextPacket()
+	{
+		return responses.poll();
+	}
+
+	/*
+	 * Returns true if there is an object waiting to be read in the input queue.
 	 */
 	public boolean hasData()
 	{
-		try
-		{
-			return reader.available() > 0;
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		return false;
+		return !responses.isEmpty();
 	}
 }

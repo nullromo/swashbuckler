@@ -1,15 +1,18 @@
 package com.kovacs.swashbuckler.game.entity;
 
+import java.io.Serializable;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
 
-public class Pirate extends Entity
+public class Pirate extends Entity implements Serializable
 {
+	private static final long serialVersionUID = -1096156252334655485L;
+	
 	/*
 	 * Stats to represent character traits.
 	 */
-	private final int strength, endurance, constitution, expertise;
-	private final Dexterity dexterity;
-	private final String name;
+	private int strength, endurance, constitution, expertise;
+	private Dexterity dexterity;
+	private String name;
 
 	/*
 	 * Stats to represent conditions
@@ -31,13 +34,18 @@ public class Pirate extends Entity
 	 */
 	public enum Dexterity
 	{
-		RIGHT, LEFT
+		RIGHT_HANDED, LEFT_HANDED, AMBIDEXTROUS;
+		@Override
+		public String toString()
+		{
+			return this.name().toLowerCase().replaceAll("_", " ");
+		}
 	};
-
+	
 	public Pirate(int head, int leftArm, int rightArm, int body, int strength, int endurance, int constitution,
-			int expertise, Dexterity dexterity, String name, BoardCoordinate... boardCoordinates)
+			int expertise, Dexterity dexterity, String name, BoardCoordinate coordinate)
 	{
-		super(boardCoordinates);
+		super(coordinate);
 		this.head = head;
 		this.leftArm = leftArm;
 		this.rightArm = rightArm;

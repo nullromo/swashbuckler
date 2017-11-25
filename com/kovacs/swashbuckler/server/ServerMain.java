@@ -5,6 +5,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import com.kovacs.swashbuckler.Connection;
+import com.kovacs.swashbuckler.packets.NewConnectionPacket;
+import com.kovacs.swashbuckler.packets.NewPiratePacket;
+import com.kovacs.swashbuckler.packets.Packet;
 
 /*
  * This is the main server-side application. It hosts and array list of
@@ -29,18 +32,20 @@ public class ServerMain
 	 * This should turn to false on shutdown.
 	 */
 	private boolean running = true;
-	
+
 	/*
 	 * The main board that represents the game
 	 */
 	private Board board = new Board();
 
 	/*
-	 * The program starts off by launching a client-accepting thread and then
-	 * running the run method.
+	 * The program starts off by launching a client-accepting thread and a
+	 * response-accepting thread, and then running the run method.
 	 */
 	public static void main(String[] args)
 	{
+		// TODO: This thread just runs and accepts clients all the time. It
+		// needs to start games properly and such.
 		new Thread()
 		{
 			@Override
@@ -80,8 +85,31 @@ public class ServerMain
 			for (Connection c : connections)
 			{
 				if (c.hasData())
-					System.out.println(c.read());
+				{
+					Packet packet = c.nextPacket();
+					packet.tag(c);
+					handleResponse(packet);
+				}
 			}
 		}
+	}
+
+	/*
+	 * The main switch that takes care of incoming packets from clients.
+	 */
+	private void handleResponse(Packet packet)
+	{
+		if (packet instanceof NewConnectionPacket)
+		{
+			System.out.println("got new packet");
+			packet.getConnection().write(new NewConnectionPacket());
+		}
+		else if (packet instanceof NewPiratePacket)
+		{
+			System.out.println("got new pirate packet");
+			System.out.println(((NewPiratePacket) packet).getPirate());
+		}
+		else
+			System.out.println("Unrecognized or unimplemented packet type: " + packet.getClass());
 	}
 }

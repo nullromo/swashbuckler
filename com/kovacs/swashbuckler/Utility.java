@@ -6,6 +6,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+import com.kovacs.swashbuckler.game.BoardCoordinate;
 
 /*
  * Contains general utilities and things that aren't really specific to a single
@@ -13,6 +16,138 @@ import java.net.UnknownHostException;
  */
 public class Utility
 {
+	/*
+	 * Takes a non-zero integer from the standard input
+	 */
+	public static int getInt(Scanner scanner, int max)
+	{
+		int i = 0;
+		while (i == 0)
+		{
+			try
+			{
+				i = scanner.nextInt();
+			}
+			catch (InputMismatchException e)
+			{
+				System.out.println("Please enter an integer.");
+			}
+			if (i <= 0)
+			{
+				System.out.println("Must be greater than 0.");
+				i = 0;
+			}
+			else if (i > max)
+			{
+				System.out.println("That's too high.");
+				i = 0;
+			}
+			scanner.nextLine();
+		}
+		return i;
+	}
+
+	/*
+	 * Picks a random square on the board. TODO: add checking to this and change
+	 * it to randomEmptySquare or something.
+	 */
+	public static BoardCoordinate randomBoardCoordinate()
+	{
+		switch (rollDoubleDigit())
+		{
+			case 11:
+				return new BoardCoordinate('b', 2);
+			case 12:
+				return new BoardCoordinate('b', 5);
+			case 13:
+				return new BoardCoordinate('b', 8);
+			case 14:
+				return new BoardCoordinate('b', 11);
+			case 15:
+				return new BoardCoordinate('b', 14);
+			case 16:
+				return new BoardCoordinate('d', 1);
+			case 21:
+				return new BoardCoordinate('d', 4);
+			case 22:
+				return new BoardCoordinate('d', 7);
+			case 23:
+				return new BoardCoordinate('d', 10);
+			case 24:
+				return new BoardCoordinate('d', 13);
+			case 25:
+				return new BoardCoordinate('f', 3);
+			case 26:
+				return new BoardCoordinate('f', 6);
+			case 31:
+				return new BoardCoordinate('f', 9);
+			case 32:
+				return new BoardCoordinate('f', 12);
+			case 33:
+				return new BoardCoordinate('f', 14);
+			case 34:
+				return new BoardCoordinate('h', 1);
+			case 35:
+				return new BoardCoordinate('h', 4);
+			case 36:
+				return new BoardCoordinate('h', 7);
+			case 41:
+				return new BoardCoordinate('h', 10);
+			case 42:
+				return new BoardCoordinate('h', 13);
+			case 43:
+				return new BoardCoordinate('j', 2);
+			case 44:
+				return new BoardCoordinate('j', 5);
+			case 45:
+				return new BoardCoordinate('j', 8);
+			case 46:
+				return new BoardCoordinate('j', 11);
+			case 51:
+				return new BoardCoordinate('j', 14);
+			case 52:
+				return new BoardCoordinate('l', 3);
+			case 53:
+				return new BoardCoordinate('l', 6);
+			case 54:
+				return new BoardCoordinate('l', 9);
+			case 55:
+				return new BoardCoordinate('l', 12);
+			case 56:
+				return new BoardCoordinate('l', 14);
+			case 61:
+				return new BoardCoordinate('n', 2);
+			case 62:
+				return new BoardCoordinate('n', 5);
+			case 63:
+				return new BoardCoordinate('n', 7);
+			case 64:
+				return new BoardCoordinate('n', 10);
+			case 65:
+				return new BoardCoordinate('n', 12);
+			case 66:
+				return new BoardCoordinate('n', 14);
+			default:
+				throw new RuntimeException("Unreachable code.");
+		}
+	}
+
+	/*
+	 * Simulates a 6-sided die roll
+	 */
+	public static int rollDie()
+	{
+		return (int) (Math.random() * 6) + 1;
+	}
+
+	/*
+	 * Simulates a double roll
+	 */
+	public static int rollDoubleDigit()
+	{
+		return rollDie() * 10 + rollDie();
+	}
+
 	/*
 	 * Represents each relevant compass direction.
 	 */

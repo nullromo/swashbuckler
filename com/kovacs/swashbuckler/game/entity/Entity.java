@@ -40,4 +40,9 @@ public class Entity
 		coordinates = newCoords;
 		return true;
 	}
+
+	public Entity()
+	{
+
+	}
 }

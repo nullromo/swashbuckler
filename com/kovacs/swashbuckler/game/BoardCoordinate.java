@@ -26,7 +26,7 @@ public class BoardCoordinate
 	@Override
 	public String toString()
 	{
-		return letter + "" + number;
+		return Character.toUpperCase(letter) + "" + number;
 	}
 
 	/*
