@@ -1,7 +1,8 @@
-package com.kovacs.swashbuckler.game;
+package com.kovacs.swashbuckler.game.entity;
 
 import java.util.ArrayList;
 import com.kovacs.swashbuckler.Utility.Direction;
+import com.kovacs.swashbuckler.game.BoardCoordinate;
 
 /*
  * This class represents an objct on the game board.
@@ -15,9 +16,12 @@ public class Entity
 	 */
 	public ArrayList<BoardCoordinate> coordinates = new ArrayList<>();
 
-	public Entity()
+	public Entity(BoardCoordinate... boardCoordinates)
 	{
-		coordinates.add(new BoardCoordinate('f', 3));
+		for (BoardCoordinate bc : boardCoordinates)
+		{
+			coordinates.add(bc);
+		}
 	}
 
 	/*

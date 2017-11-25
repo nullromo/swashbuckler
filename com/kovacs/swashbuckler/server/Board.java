@@ -2,7 +2,7 @@ package com.kovacs.swashbuckler.server;
 
 import java.util.ArrayList;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
-import com.kovacs.swashbuckler.game.Entity;
+import com.kovacs.swashbuckler.game.entity.Entity;
 
 /*
  * This class represents the game board.
@@ -16,7 +16,7 @@ public class Board
 
 	public Board()
 	{
-		entities.add(new Entity());
+		entities.add(new Entity(new BoardCoordinate('c', 9)));
 	}
 
 	@Override
