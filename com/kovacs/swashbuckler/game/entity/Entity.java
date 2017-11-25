@@ -1,5 +1,6 @@
 package com.kovacs.swashbuckler.game.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import com.kovacs.swashbuckler.Utility.Direction;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
@@ -7,17 +8,20 @@ import com.kovacs.swashbuckler.game.BoardCoordinate;
 /*
  * This class represents an objct on the game board.
  */
-public class Entity
+public class Entity implements Serializable
 {
+	private static final long serialVersionUID = -441542423900716801L;
+
 	/*
 	 * An array of the coordinates that this entity takes up. Most entities take
 	 * up a single square, but tables, shelves, and carpets can take up more
 	 * than one.
 	 */
-	public ArrayList<BoardCoordinate> coordinates = new ArrayList<>();
+	public ArrayList<BoardCoordinate> coordinates;
 
 	public Entity(BoardCoordinate... boardCoordinates)
 	{
+		coordinates = new ArrayList<>();
 		for (BoardCoordinate bc : boardCoordinates)
 		{
 			coordinates.add(bc);
@@ -39,10 +43,5 @@ public class Entity
 		}
 		coordinates = newCoords;
 		return true;
-	}
-
-	public Entity()
-	{
-
 	}
 }

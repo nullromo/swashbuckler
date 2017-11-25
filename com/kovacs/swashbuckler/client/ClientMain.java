@@ -10,6 +10,7 @@ import com.kovacs.swashbuckler.Utility;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
 import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.game.entity.Pirate.Dexterity;
+import com.kovacs.swashbuckler.packets.MessagePacket;
 import com.kovacs.swashbuckler.packets.NewConnectionPacket;
 import com.kovacs.swashbuckler.packets.NewPiratePacket;
 import com.kovacs.swashbuckler.packets.Packet;
@@ -68,7 +69,7 @@ public class ClientMain
 			}
 			try
 			{
-				Thread.sleep(20);
+				Thread.sleep(2);
 			}
 			catch (InterruptedException e)
 			{
@@ -117,7 +118,12 @@ public class ClientMain
 			scanner.close();
 			Pirate pirate = new Pirate(head, leftArm, rightArm, body, strength, endurance, constitution, expertise,
 					dexterity, name, coordinate);
+			System.out.println(pirate.coordinates);
 			connection.write(new NewPiratePacket(pirate));
+		}
+		else if (packet instanceof MessagePacket)
+		{
+			System.out.println("Server: " + ((MessagePacket) packet).getMessage());
 		}
 		else
 			System.out.println("Unrecognized or unimplemented packet type: " + packet.getClass());

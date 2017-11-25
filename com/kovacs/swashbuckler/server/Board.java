@@ -18,6 +18,11 @@ public class Board
 	{
 		entities.add(new Entity(new BoardCoordinate('c', 9)));
 	}
+	
+	public void add(Entity entity)
+	{
+		this.entities.add(entity);
+	}
 
 	@Override
 	public String toString()
@@ -25,6 +30,9 @@ public class Board
 		char[][] board = new char[14][14];
 		for (Entity e : entities)
 		{
+			System.out.println(e);
+			System.out.println(e.coordinates);
+			System.out.println(e.coordinates.size());
 			for (BoardCoordinate bc: e.coordinates)
 			{
 				board[bc.letter-97][bc.number-1] = 'e';

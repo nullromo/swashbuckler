@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import com.kovacs.swashbuckler.Connection;
+import com.kovacs.swashbuckler.packets.MessagePacket;
 import com.kovacs.swashbuckler.packets.NewConnectionPacket;
 import com.kovacs.swashbuckler.packets.NewPiratePacket;
 import com.kovacs.swashbuckler.packets.Packet;
@@ -82,14 +83,23 @@ public class ServerMain
 		System.out.println(board);
 		while (true)
 		{
-			for (Connection c : connections)
+			for (int i = 0; i < connections.size(); i++)
 			{
+				Connection c = connections.get(i);
 				if (c.hasData())
 				{
 					Packet packet = c.nextPacket();
 					packet.tag(c);
 					handleResponse(packet);
 				}
+			}
+			try
+			{
+				Thread.sleep(2);
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
 			}
 		}
 	}
@@ -101,15 +111,26 @@ public class ServerMain
 	{
 		if (packet instanceof NewConnectionPacket)
 		{
-			System.out.println("got new packet");
 			packet.getConnection().write(new NewConnectionPacket());
 		}
 		else if (packet instanceof NewPiratePacket)
 		{
-			System.out.println("got new pirate packet");
-			System.out.println(((NewPiratePacket) packet).getPirate());
+			board.add(((NewPiratePacket) packet).getPirate());
+			writeAll(new MessagePacket(((NewPiratePacket) packet).getPirate().getName() + " has joined the game."));
+			System.out.println(board);
 		}
 		else
 			System.out.println("Unrecognized or unimplemented packet type: " + packet.getClass());
+	}
+
+	/*
+	 * Writes the same packet to all clients.
+	 */
+	private void writeAll(Packet packet)
+	{
+		for (Connection c : connections)
+		{
+			c.write(packet);
+		}
 	}
 }

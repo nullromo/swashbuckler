@@ -1,12 +1,15 @@
 package com.kovacs.swashbuckler.game;
 
+import java.io.Serializable;
 import com.kovacs.swashbuckler.Utility.Direction;
 
 /*
  * This class represents a single square on the board (like e4 or g12)
  */
-public class BoardCoordinate
+public class BoardCoordinate implements Serializable
 {
+	private static final long serialVersionUID = 1890916500095788408L;
+
 	/*
 	 * The row on the board
 	 */
