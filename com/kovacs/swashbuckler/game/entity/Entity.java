@@ -44,4 +44,19 @@ public class Entity implements Serializable
 		coordinates = newCoords;
 		return true;
 	}
+	
+	/*
+	 * Returns true if this entity touches the given coordinate
+	 */
+	public boolean touches(BoardCoordinate coordinate)
+	{
+		for (BoardCoordinate c: coordinates)
+		{
+			if(c.equals(coordinate))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 }

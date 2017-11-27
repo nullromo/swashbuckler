@@ -78,8 +78,15 @@ public class BoardCoordinate implements Serializable
 				throw new RuntimeException("Unreachable code");
 
 		}
-		if (letter < 'a' || letter > 'o' || number < 1 || number > 14)
+		if (newLetter < 'a' || newLetter > 'o' || newNumber < 1 || newNumber > 14)
 			return null;
 		return new BoardCoordinate(newLetter, newNumber);
+	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		return o instanceof BoardCoordinate && ((BoardCoordinate) o).letter == this.letter
+				&& ((BoardCoordinate) o).number == this.number;
 	}
 }

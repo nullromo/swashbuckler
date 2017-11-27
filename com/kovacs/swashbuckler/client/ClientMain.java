@@ -111,11 +111,11 @@ public class ClientMain
 			System.out.println("Enter the number of constituion points to assign to " + name + "'s left arm. (up to "
 					+ (constitution - head - body - 1) + ").");
 			int leftArm = Utility.getInt(scanner, constitution - head - body - 1);
+			scanner.close();
 			System.out.println(name + "'s remaining consitution points have been added to his/her right arm.");
 			int rightArm = constitution - head - body - leftArm;
 			BoardCoordinate coordinate = Utility.randomBoardCoordinate();
 			System.out.println(name + " will be placed on square " + coordinate);
-			scanner.close();
 			Pirate pirate = new Pirate(head, leftArm, rightArm, body, strength, endurance, constitution, expertise,
 					dexterity, name, coordinate);
 			System.out.println(pirate.coordinates);

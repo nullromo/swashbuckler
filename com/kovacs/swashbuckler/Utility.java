@@ -6,7 +6,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
 
@@ -16,6 +19,51 @@ import com.kovacs.swashbuckler.game.BoardCoordinate;
  */
 public class Utility
 {
+	/*
+	 * Shuffles a list.
+	 */
+	public static <T> void shuffle(List<T> list)
+	{
+		Collections.shuffle(list, rand);
+	}
+	
+	/*
+	 * Returns a element from the given array.
+	 */
+	public static <T> T random(T arr[])
+	{
+		return arr[randInt(0, arr.length-1)];
+	}
+	
+	/*
+	 * Returns a random direction.
+	 */
+	public static Direction randomDirection()
+	{
+		return Direction.values()[rand.nextInt(Direction.values().length)];
+	}
+	
+	/*
+	 * Seedable random object
+	 */
+	private static Random rand = new Random();
+
+	/*
+	 * Returns a random double between 0 and 1.
+	 */
+	public static double rand()
+	{
+		return rand.nextDouble();
+	}
+
+	/*
+	 * Returns a random integer between the two given values
+	 */
+	public static int randInt(int min, int max)
+	{
+		return rand.nextInt(max - min + 1) + min;
+	}
+
 	/*
 	 * Takes a non-zero integer from the standard input
 	 */
@@ -137,7 +185,7 @@ public class Utility
 	 */
 	public static int rollDie()
 	{
-		return (int) (Math.random() * 6) + 1;
+		return rand.nextInt(6) + 1;
 	}
 
 	/*
@@ -147,6 +195,11 @@ public class Utility
 	{
 		return rollDie() * 10 + rollDie();
 	}
+	
+	/*
+	 * A list of just the cardinal direcitons.
+	 */
+	public static Direction[] cardinalDirections = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
 
 	/*
 	 * Represents each relevant compass direction.
@@ -155,7 +208,7 @@ public class Utility
 	{
 		NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST
 	}
-
+	
 	// returns the external IP address of this computer. Super sketchy. I wrote
 	// this a long time ago.
 	public static String getExternalIPAddress()
