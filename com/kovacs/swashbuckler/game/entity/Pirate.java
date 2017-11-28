@@ -43,9 +43,8 @@ public class Pirate extends Entity implements Serializable
 	};
 	
 	public Pirate(int head, int leftArm, int rightArm, int body, int strength, int endurance, int constitution,
-			int expertise, Dexterity dexterity, String name, BoardCoordinate coordinate)
+			int expertise, Dexterity dexterity, String name)
 	{
-		super(coordinate);
 		this.head = head;
 		this.leftArm = leftArm;
 		this.rightArm = rightArm;

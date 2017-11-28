@@ -114,11 +114,8 @@ public class ClientMain
 			scanner.close();
 			System.out.println(name + "'s remaining consitution points have been added to his/her right arm.");
 			int rightArm = constitution - head - body - leftArm;
-			BoardCoordinate coordinate = Utility.randomBoardCoordinate();
-			System.out.println(name + " will be placed on square " + coordinate);
 			Pirate pirate = new Pirate(head, leftArm, rightArm, body, strength, endurance, constitution, expertise,
-					dexterity, name, coordinate);
-			System.out.println(pirate.coordinates);
+					dexterity, name);
 			connection.write(new NewPiratePacket(pirate));
 		}
 		else if (packet instanceof MessagePacket)

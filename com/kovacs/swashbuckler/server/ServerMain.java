@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import com.kovacs.swashbuckler.Connection;
+import com.kovacs.swashbuckler.game.BoardCoordinate;
+import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.packets.MessagePacket;
 import com.kovacs.swashbuckler.packets.NewConnectionPacket;
 import com.kovacs.swashbuckler.packets.NewPiratePacket;
@@ -115,7 +117,13 @@ public class ServerMain
 		}
 		else if (packet instanceof NewPiratePacket)
 		{
-			board.add(((NewPiratePacket) packet).getPirate());
+			Pirate pirate = ((NewPiratePacket) packet).getPirate();
+			// TODO: Catch the infinite loop possibility.
+			BoardCoordinate coordinate = Board.randomPiratePosition();
+			while (board.occupied(coordinate))
+				coordinate = Board.randomPiratePosition();
+			pirate.coordinates.add(coordinate);
+			board.add(pirate);
 			writeAll(new MessagePacket(((NewPiratePacket) packet).getPirate().getName() + " has joined the game."));
 			System.out.println(board);
 		}
