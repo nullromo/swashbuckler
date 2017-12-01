@@ -28,7 +28,6 @@ public class Board
 
 	public Board()
 	{
-		System.out.println("====initializing game board...====");
 		// Since windows, stairs, and balconies do not move, there are single
 		// entities that hold all the appropriate coordinates.
 		add(new Balcony(new BoardCoordinate('a', 6), new BoardCoordinate('a', 7), new BoardCoordinate('a', 8),
@@ -39,7 +38,6 @@ public class Board
 				new BoardCoordinate('o', 2), new BoardCoordinate('o', 3), new BoardCoordinate('o', 7),
 				new BoardCoordinate('o', 8), new BoardCoordinate('o', 11), new BoardCoordinate('o', 12)));
 
-		System.out.println("initializing tables...");
 		// There are 9 potential tables that can appear at D4, D8, D12, H4, H8,
 		// H12, L4, L8, and L12. Each of these starting positions has a chance
 		// to be bumped by 1 square in any direction. Then it is extended by 1
@@ -72,7 +70,6 @@ public class Board
 			add(t);
 		}
 
-		System.out.println("initializing chairs and mugs...");
 		// Every table square can potentially be surrounded by chairs (only in
 		// cardinal directions). Each of these that are unoccupied are collected
 		// and randomized. Then a subset of that group is selected for actual
@@ -102,7 +99,6 @@ public class Board
 		for (int i = 0; i < potentialMugLocations.size() * 2 / 3; i++)
 			add(new Mug(potentialMugLocations.get(i)));
 
-		System.out.println("initializing shelves...");
 		// There can be up to 1 shelf on each wall. A shelf is selected based on
 		// predefined positions.
 		Character[] westWallOptions = new Character[] { 'a', 'b', 'c', 'f', 'g', 'h', 'i', 'l', 'm', 'n' };
@@ -134,7 +130,6 @@ public class Board
 				add(new Shelf(base, base.next(Direction.EAST)));
 		}
 
-		System.out.println("initializing daggers...");
 		// Daggers can appear on the floor and on tables. There is a small
 		// chance to spawn one in every eligible square.
 		forAllSquares(new Consumer<BoardCoordinate>()
@@ -150,7 +145,6 @@ public class Board
 			}
 		});
 
-		System.out.println("initializing swords...");
 		// There is a small chance to spawn up to 2 swords on the floor. This is
 		// done by choosing randomly in a shuffled list.
 		ArrayList<BoardCoordinate> potentialSwordLocations = new ArrayList<>();
@@ -209,7 +203,7 @@ public class Board
 	 * Performs some action that needs to be done for all squares on the board.
 	 * Yields a new BoardCoordinate instance for every square.
 	 */
-	void forAllSquares(Consumer<BoardCoordinate> f)
+	private void forAllSquares(Consumer<BoardCoordinate> f)
 	{
 		for (char letter = 'a'; letter <= 'o'; letter++)
 		{
@@ -325,5 +319,10 @@ public class Board
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+
+	public ArrayList<Entity> getEntities()
+	{
+		return entities;
 	}
 }

@@ -3,7 +3,7 @@ package com.kovacs.swashbuckler.packets;
 import java.io.Serializable;
 
 /*
- * Sent by a client when it first connects. Also sent by the server to acknowledge.
+ * Sent by a client when it first connects.
  */
 public class NewConnectionPacket extends Packet implements Serializable
 {

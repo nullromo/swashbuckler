@@ -7,13 +7,14 @@ import java.net.Socket;
 import java.util.Scanner;
 import com.kovacs.swashbuckler.Connection;
 import com.kovacs.swashbuckler.Utility;
-import com.kovacs.swashbuckler.game.BoardCoordinate;
 import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.game.entity.Pirate.Dexterity;
 import com.kovacs.swashbuckler.packets.MessagePacket;
 import com.kovacs.swashbuckler.packets.NewConnectionPacket;
-import com.kovacs.swashbuckler.packets.NewPiratePacket;
 import com.kovacs.swashbuckler.packets.Packet;
+import com.kovacs.swashbuckler.packets.InvalidPirateNamePacket;
+import com.kovacs.swashbuckler.packets.RequestPacket;
+import com.kovacs.swashbuckler.packets.ResponsePacket;
 
 /*
  * This is the main class for the client-side application. It will respond to
@@ -31,6 +32,11 @@ public class ClientMain
 	 * The I/O wrapper for the client's connection
 	 */
 	public Connection connection;
+
+	/*
+	 * Takes input from stdin. TODO: this will eventually go away.
+	 */
+	private final Scanner scanner = new Scanner(System.in);
 
 	/*
 	 * The main method sets up the connection and kicks off the main loop
@@ -83,11 +89,38 @@ public class ClientMain
 	 */
 	private void handleRequest(Packet packet)
 	{
-		if (packet instanceof NewConnectionPacket)
+		if (packet instanceof RequestPacket)
 		{
-			Scanner scanner = new Scanner(System.in);
-			System.out.println("Welcome to Swashbuckler. Please enter your pirate's name.");
-			String name = scanner.nextLine();
+			handleRequestPacket((RequestPacket) packet);
+		}
+		else if (packet instanceof InvalidPirateNamePacket)
+		{
+			Pirate pirate = ((InvalidPirateNamePacket) packet).getPirate();
+			System.out.println("\"" + pirate.getName() + "\" is already taken. Please choose another pirate name.");
+			String newName = Utility.getValidName(scanner);
+			pirate.setName(newName);
+			connection.write(new ResponsePacket<Pirate>(pirate));
+		}
+		else if (packet instanceof MessagePacket)
+		{
+			// TODO: There should be a separate thread that handles messages. It
+			// is important that messages get handled in real time while the
+			// user is deciding to do things.
+			System.out.println("Server: " + ((MessagePacket) packet).getMessage());
+		}
+		else
+			Utility.typeError(packet.getClass());
+	}
+
+	/*
+	 * Handles requests for objects that have been made by the server.
+	 */
+	private void handleRequestPacket(RequestPacket packet)
+	{
+		if (packet.type == Pirate.class)
+		{
+			System.out.println("Please enter your pirate's name.");
+			String name = Utility.getValidName(scanner);
 			int strength = Utility.rollDie() + Utility.rollDie() + Utility.rollDie();
 			int endurance = Utility.rollDie() + Utility.rollDie() + Utility.rollDie();
 			int constitution = strength + endurance;
@@ -111,18 +144,13 @@ public class ClientMain
 			System.out.println("Enter the number of constituion points to assign to " + name + "'s left arm. (up to "
 					+ (constitution - head - body - 1) + ").");
 			int leftArm = Utility.getInt(scanner, constitution - head - body - 1);
-			scanner.close();
 			System.out.println(name + "'s remaining consitution points have been added to his/her right arm.");
 			int rightArm = constitution - head - body - leftArm;
 			Pirate pirate = new Pirate(head, leftArm, rightArm, body, strength, endurance, constitution, expertise,
 					dexterity, name);
-			connection.write(new NewPiratePacket(pirate));
-		}
-		else if (packet instanceof MessagePacket)
-		{
-			System.out.println("Server: " + ((MessagePacket) packet).getMessage());
+			connection.write(new ResponsePacket<Pirate>(pirate));
 		}
 		else
-			System.out.println("Unrecognized or unimplemented packet type: " + packet.getClass());
+			Utility.typeError(packet.type);
 	}
 }

@@ -11,7 +11,7 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-import com.kovacs.swashbuckler.game.BoardCoordinate;
+import java.util.regex.Pattern;
 
 /*
  * Contains general utilities and things that aren't really specific to a single
@@ -20,21 +20,35 @@ import com.kovacs.swashbuckler.game.BoardCoordinate;
 public class Utility
 {
 	/*
+	 * Throws a runtime exception because of an unimplemented feature or
+	 * unrecognized operation/type.
+	 */
+	public static void typeError(Object... objects)
+	{
+		StringBuilder sb = new StringBuilder("Unrecognized or unimplemented object type");
+		for (Object object : objects)
+		{
+			sb.append(" ").append(object.toString());
+		}
+		throw new RuntimeException(sb.toString());
+	}
+
+	/*
 	 * Shuffles a list.
 	 */
 	public static <T> void shuffle(List<T> list)
 	{
 		Collections.shuffle(list, rand);
 	}
-	
+
 	/*
 	 * Returns a element from the given array.
 	 */
 	public static <T> T randomElement(T arr[])
 	{
-		return arr[randInt(0, arr.length-1)];
+		return arr[randInt(0, arr.length - 1)];
 	}
-	
+
 	/*
 	 * Returns a random direction.
 	 */
@@ -42,7 +56,7 @@ public class Utility
 	{
 		return Direction.values()[rand.nextInt(Direction.values().length)];
 	}
-	
+
 	/*
 	 * Seedable random object
 	 */
@@ -62,6 +76,30 @@ public class Utility
 	public static int randInt(int min, int max)
 	{
 		return rand.nextInt(max - min + 1) + min;
+	}
+
+	/*
+	 * Reads from a scanner until a valid name is entered.
+	 */
+	public static String getValidName(Scanner scanner)
+	{
+		String name = null;
+		do
+		{
+			System.out.println("\t(Your pirate's name must be one or two words made of letters only.)");
+			name = scanner.nextLine();
+		}
+		while (!validName(name));
+		return name;
+	}
+
+	/*
+	 * Tells whether or not a name is valid
+	 */
+	private static boolean validName(String name)
+	{
+		Pattern validNamePattern = Pattern.compile("[a-zA-Z]+( )?([a-zA-Z]+)?");
+		return validNamePattern.matcher(name).matches();
 	}
 
 	/*
@@ -110,11 +148,11 @@ public class Utility
 	{
 		return rollDie() * 10 + rollDie();
 	}
-	
+
 	/*
 	 * A list of just the cardinal direcitons.
 	 */
-	public static Direction[] cardinalDirections = {Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST};
+	public static Direction[] cardinalDirections = { Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST };
 
 	/*
 	 * Represents each relevant compass direction.
@@ -123,7 +161,7 @@ public class Utility
 	{
 		NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST
 	}
-	
+
 	// returns the external IP address of this computer. Super sketchy. I wrote
 	// this a long time ago.
 	public static String getExternalIPAddress()

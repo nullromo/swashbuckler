@@ -1,12 +1,11 @@
 package com.kovacs.swashbuckler.game.entity;
 
 import java.io.Serializable;
-import com.kovacs.swashbuckler.game.BoardCoordinate;
 
 public class Pirate extends Entity implements Serializable
 {
 	private static final long serialVersionUID = -1096156252334655485L;
-	
+
 	/*
 	 * Stats to represent character traits.
 	 */
@@ -41,7 +40,7 @@ public class Pirate extends Entity implements Serializable
 			return this.name().toLowerCase().replaceAll("_", " ");
 		}
 	};
-	
+
 	public Pirate(int head, int leftArm, int rightArm, int body, int strength, int endurance, int constitution,
 			int expertise, Dexterity dexterity, String name)
 	{
@@ -185,5 +184,10 @@ public class Pirate extends Entity implements Serializable
 	public Condition getCondition()
 	{
 		return condition;
+	}
+
+	public void setName(String name)
+	{
+		this.name = name;
 	}
 }

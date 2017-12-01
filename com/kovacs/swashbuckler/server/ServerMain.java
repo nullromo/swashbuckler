@@ -5,12 +5,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import com.kovacs.swashbuckler.Connection;
+import com.kovacs.swashbuckler.Utility;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
+import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.packets.MessagePacket;
 import com.kovacs.swashbuckler.packets.NewConnectionPacket;
-import com.kovacs.swashbuckler.packets.NewPiratePacket;
 import com.kovacs.swashbuckler.packets.Packet;
+import com.kovacs.swashbuckler.packets.InvalidPirateNamePacket;
+import com.kovacs.swashbuckler.packets.RequestPacket;
+import com.kovacs.swashbuckler.packets.ResponsePacket;
 
 /*
  * This is the main server-side application. It hosts and array list of
@@ -82,7 +86,6 @@ public class ServerMain
 	 */
 	private void run()
 	{
-		System.out.println(board);
 		while (true)
 		{
 			for (int i = 0; i < connections.size(); i++)
@@ -113,22 +116,66 @@ public class ServerMain
 	{
 		if (packet instanceof NewConnectionPacket)
 		{
-			packet.getConnection().write(new NewConnectionPacket());
+			packet.getConnection().write(new MessagePacket("Welcome to Swashbuckler."));
+			packet.getConnection().write(new MessagePacket("To play, you will need to create 2 pirates."));
+			packet.getConnection().write(new RequestPacket(Pirate.class));
+			packet.getConnection().write(new RequestPacket(Pirate.class));
 		}
-		else if (packet instanceof NewPiratePacket)
+		else if (packet instanceof ResponsePacket)
 		{
-			Pirate pirate = ((NewPiratePacket) packet).getPirate();
-			// TODO: Catch the infinite loop possibility.
-			BoardCoordinate coordinate = Board.randomPiratePosition();
-			while (board.occupied(coordinate))
-				coordinate = Board.randomPiratePosition();
-			pirate.coordinates.add(coordinate);
-			board.add(pirate);
-			writeAll(new MessagePacket(((NewPiratePacket) packet).getPirate().getName() + " has joined the game."));
-			System.out.println(board);
+			handleObjectPacket((ResponsePacket<?>) packet);
 		}
 		else
-			System.out.println("Unrecognized or unimplemented packet type: " + packet.getClass());
+			Utility.typeError(packet.getClass());
+	}
+
+	/*
+	 * Handles incoming objects.
+	 */
+	private void handleObjectPacket(ResponsePacket<?> packet)
+	{
+		if (packet.getType() == Pirate.class)
+		{
+			Pirate pirate = (Pirate) packet.getObject();
+			for (Entity entity : board.getEntities())
+			{
+				if (entity instanceof Pirate)
+				{
+					if (((Pirate) entity).getName().equals(pirate.getName()))
+					{
+						packet.getConnection().write(new InvalidPirateNamePacket(pirate));
+						return;
+					}
+				}
+			}
+			placePirate(pirate);
+		}
+		else
+			Utility.typeError(packet.getType());
+	}
+
+	/*
+	 * Places a newly recieved pirate onto the game board.
+	 */
+	private void placePirate(Pirate pirate)
+	{
+		// TODO: Catch the infinite loop possibility.
+		BoardCoordinate coordinate = Board.randomPiratePosition();
+		while (board.occupied(coordinate))
+			coordinate = Board.randomPiratePosition();
+		pirate.coordinates.add(coordinate);
+		board.add(pirate);
+		writeAll(new MessagePacket(pirate.getName() + " has joined the game."));
+		System.out.println(board);
+		checkGameStart();
+	}
+
+	/*
+	 * Checks to see if the right amount of pirates have been created
+	 */
+	private void checkGameStart()
+	{
+		// TODO: check to start the game and fire off a packet to all clients.
 	}
 
 	/*
