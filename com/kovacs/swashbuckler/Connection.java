@@ -66,7 +66,7 @@ public class Connection
 		catch (ClassNotFoundException | IOException e)
 		{
 			e.printStackTrace();
-			System.exit(0);
+			System.exit(1);
 		}
 		return result;
 	}
@@ -83,6 +83,7 @@ public class Connection
 		catch (IOException e)
 		{
 			e.printStackTrace();
+			System.exit(1);
 		}
 
 	}

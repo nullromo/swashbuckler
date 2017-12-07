@@ -1,10 +1,11 @@
-package com.kovacs.swashbuckler.server;
+package com.kovacs.swashbuckler.game;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import com.kovacs.swashbuckler.Utility;
 import com.kovacs.swashbuckler.Utility.Direction;
-import com.kovacs.swashbuckler.game.BoardCoordinate;
 import com.kovacs.swashbuckler.game.entity.Balcony;
 import com.kovacs.swashbuckler.game.entity.Chair;
 import com.kovacs.swashbuckler.game.entity.Dagger;
@@ -37,6 +38,8 @@ public class Board
 				new BoardCoordinate('k', 14), new BoardCoordinate('a', 2), new BoardCoordinate('a', 12),
 				new BoardCoordinate('o', 2), new BoardCoordinate('o', 3), new BoardCoordinate('o', 7),
 				new BoardCoordinate('o', 8), new BoardCoordinate('o', 11), new BoardCoordinate('o', 12)));
+
+		// TODO: place carpets
 
 		// There are 9 potential tables that can appear at D4, D8, D12, H4, H8,
 		// H12, L4, L8, and L12. Each of these starting positions has a chance
@@ -129,6 +132,8 @@ public class Board
 			if (!occupied(base) && !occupied(base.next(Direction.EAST)))
 				add(new Shelf(base, base.next(Direction.EAST)));
 		}
+
+		// TODO: place chandeliers
 
 		// Daggers can appear on the floor and on tables. There is a small
 		// chance to spawn one in every eligible square.
@@ -321,8 +326,11 @@ public class Board
 		return sb.toString();
 	}
 
-	public ArrayList<Entity> getEntities()
+	/*
+	 * Returns an iterator over certain game objects
+	 */
+	public List<Entity> allEntities(Class<?> type)
 	{
-		return entities;
+		return entities.stream().filter(e -> e.getClass().equals(type)).collect(Collectors.toList());
 	}
 }

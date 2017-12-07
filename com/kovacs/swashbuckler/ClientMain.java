@@ -1,18 +1,22 @@
-package com.kovacs.swashbuckler.client;
+package com.kovacs.swashbuckler;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
-import com.kovacs.swashbuckler.Connection;
-import com.kovacs.swashbuckler.Utility;
+import com.kovacs.swashbuckler.game.Order;
+import com.kovacs.swashbuckler.game.Plan;
 import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.game.entity.Pirate.Dexterity;
+import com.kovacs.swashbuckler.packets.InvalidPirateNamePacket;
 import com.kovacs.swashbuckler.packets.MessagePacket;
 import com.kovacs.swashbuckler.packets.NewConnectionPacket;
+import com.kovacs.swashbuckler.packets.NextTurnPacket;
 import com.kovacs.swashbuckler.packets.Packet;
-import com.kovacs.swashbuckler.packets.InvalidPirateNamePacket;
+import com.kovacs.swashbuckler.packets.PirateAcceptedPacket;
 import com.kovacs.swashbuckler.packets.RequestPacket;
 import com.kovacs.swashbuckler.packets.ResponsePacket;
 
@@ -37,6 +41,23 @@ public class ClientMain
 	 * Takes input from stdin. TODO: this will eventually go away.
 	 */
 	private final Scanner scanner = new Scanner(System.in);
+
+	/*
+	 * Holds the value that tells what turn the game is on (1-MAX_TURNS).
+	 */
+	// TODO: this should increment at the end of each turn.
+	private int currentTurn = 0;
+
+	/*
+	 * Holds a list of the pirates that this client controls.
+	 */
+	private ArrayList<Pirate> pirates = new ArrayList<>();
+
+	/*
+	 * Holds the history of each pirate's plans. Maps pirate names to arrays of
+	 * their plans.
+	 */
+	private HashMap<String, Plan[]> planHistory = new HashMap<>();
 
 	/*
 	 * The main method sets up the connection and kicks off the main loop
@@ -101,12 +122,24 @@ public class ClientMain
 			pirate.setName(newName);
 			connection.write(new ResponsePacket<Pirate>(pirate));
 		}
+		else if (packet instanceof PirateAcceptedPacket)
+		{
+			Pirate pirate = ((PirateAcceptedPacket) packet).getPirate();
+			System.out.println(pirate.getName() + " has joined the game.");
+			pirates.add(pirate);
+			planHistory.put(pirate.getName(), new Plan[ServerMain.MAX_TURNS]);
+		}
 		else if (packet instanceof MessagePacket)
 		{
 			// TODO: There should be a separate thread that handles messages. It
 			// is important that messages get handled in real time while the
 			// user is deciding to do things.
 			System.out.println("Server: " + ((MessagePacket) packet).getMessage());
+		}
+		else if (packet instanceof NextTurnPacket)
+		{
+			currentTurn++;
+			System.out.println("=== Begin turn " + currentTurn + " ===");
 		}
 		else
 			Utility.typeError(packet.getClass());
@@ -149,6 +182,26 @@ public class ClientMain
 			Pirate pirate = new Pirate(head, leftArm, rightArm, body, strength, endurance, constitution, expertise,
 					dexterity, name);
 			connection.write(new ResponsePacket<Pirate>(pirate));
+		}
+		else if (packet.type == Plan.class)
+		{
+			System.out.println("Plan your turn.");
+			// TODO: unfinished
+			scanner.nextLine();
+			Plan plan = null;
+			do
+			{
+				// TODO: this is where the scanner/inout device takes in the
+				// plan.
+				plan = Plan.buildPlan(currentTurn, pirates.get(0).getName(), Order.BLOCK, Order.BLOCK,
+						Order.THROW_CHAIR);
+				// TODO: keep planning until all plans are made, sending each
+				// one in as it's made. When the last one comes back as
+				// validated, then it's done.
+			}
+			while (plan == null);
+			System.out.println(plan);
+			connection.write(new ResponsePacket<Plan>(plan));
 		}
 		else
 			Utility.typeError(packet.type);
