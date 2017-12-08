@@ -39,7 +39,7 @@ public class ServerMain
 	/*
 	 * The number of pirates each player controls.
 	 */
-	private static final int PIRATES_PER_PLAYER = 2;
+	private static final int PIRATES_PER_PLAYER = 1;
 
 	/*
 	 * The number of turns in a game.
