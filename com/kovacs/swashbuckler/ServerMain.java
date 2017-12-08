@@ -11,6 +11,7 @@ import com.kovacs.swashbuckler.game.Order;
 import com.kovacs.swashbuckler.game.Plan;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Pirate;
+import com.kovacs.swashbuckler.packets.BoardPacket;
 import com.kovacs.swashbuckler.packets.InvalidPirateNamePacket;
 import com.kovacs.swashbuckler.packets.MessagePacket;
 import com.kovacs.swashbuckler.packets.NewConnectionPacket;
@@ -283,6 +284,7 @@ public class ServerMain
 		pirate.coordinates.add(coordinate);
 		board.add(pirate);
 		writeAll(new PirateAcceptedPacket(pirate));
+		writeAll(new BoardPacket(board));
 		planHistory.put(pirate.getName(), new Order[MAX_TURNS][6]);
 		gui.write(board);
 		checkGameStart();

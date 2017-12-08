@@ -6,11 +6,11 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 import com.kovacs.swashbuckler.game.Order;
 import com.kovacs.swashbuckler.game.Plan;
 import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.game.entity.Pirate.Dexterity;
+import com.kovacs.swashbuckler.packets.BoardPacket;
 import com.kovacs.swashbuckler.packets.InvalidPirateNamePacket;
 import com.kovacs.swashbuckler.packets.MessagePacket;
 import com.kovacs.swashbuckler.packets.NewConnectionPacket;
@@ -38,11 +38,6 @@ public class ClientMain
 	public Connection connection;
 
 	/*
-	 * Takes input from stdin. TODO: this will eventually go away.
-	 */
-	private final Scanner scanner = new Scanner(System.in);
-
-	/*
 	 * Holds the value that tells what turn the game is on (1-MAX_TURNS).
 	 */
 	// TODO: this should increment at the end of each turn.
@@ -58,6 +53,16 @@ public class ClientMain
 	 * their plans.
 	 */
 	private HashMap<String, Plan[]> planHistory = new HashMap<>();
+
+	/*
+	 * The gui for the client
+	 */
+	public ClientGUI gui = new ClientGUI();
+
+	/*
+	 * An aesthetic thing so that the text looks right.
+	 */
+	private boolean firstPirate = true;
 
 	/*
 	 * The main method sets up the connection and kicks off the main loop
@@ -117,15 +122,15 @@ public class ClientMain
 		else if (packet instanceof InvalidPirateNamePacket)
 		{
 			Pirate pirate = ((InvalidPirateNamePacket) packet).getPirate();
-			System.out.println("\"" + pirate.getName() + "\" is already taken. Please choose another pirate name.");
-			String newName = Utility.getValidName(scanner);
+			gui.writeMessage("\"" + pirate.getName() + "\" is already taken. Please choose another pirate name.");
+			String newName = Utility.getValidName();
 			pirate.setName(newName);
 			connection.write(new ResponsePacket<Pirate>(pirate));
 		}
 		else if (packet instanceof PirateAcceptedPacket)
 		{
 			Pirate pirate = ((PirateAcceptedPacket) packet).getPirate();
-			System.out.println(pirate.getName() + " has joined the game.");
+			gui.writeMessage(pirate.getName() + " has joined the game.");
 			pirates.add(pirate);
 			planHistory.put(pirate.getName(), new Plan[ServerMain.MAX_TURNS]);
 		}
@@ -134,12 +139,16 @@ public class ClientMain
 			// TODO: There should be a separate thread that handles messages. It
 			// is important that messages get handled in real time while the
 			// user is deciding to do things.
-			System.out.println("Server: " + ((MessagePacket) packet).getMessage());
+			gui.writeMessage(((MessagePacket) packet).getMessage());
 		}
 		else if (packet instanceof NextTurnPacket)
 		{
 			currentTurn++;
-			System.out.println("=== Begin turn " + currentTurn + " ===");
+			gui.writeMessage("=== Begin turn " + currentTurn + " ===");
+		}
+		else if (packet instanceof BoardPacket)
+		{
+			gui.board = ((BoardPacket) packet).getBoard();
 		}
 		else
 			Utility.typeError(packet.getClass());
@@ -152,8 +161,9 @@ public class ClientMain
 	{
 		if (packet.type == Pirate.class)
 		{
-			System.out.println("Please enter your pirate's name.");
-			String name = Utility.getValidName(scanner);
+			gui.writeMessage("Please enter your " + (firstPirate ? "first" : "next") + " pirate's name.");
+			firstPirate = false;
+			String name = Utility.getValidName();
 			int strength = Utility.rollDie() + Utility.rollDie() + Utility.rollDie();
 			int endurance = Utility.rollDie() + Utility.rollDie() + Utility.rollDie();
 			int constitution = strength + endurance;
@@ -161,23 +171,23 @@ public class ClientMain
 			int dexterityRoll = Utility.rollDoubleDigit();
 			Dexterity dexterity = dexterityRoll == 66 ? Dexterity.AMBIDEXTROUS
 					: dexterityRoll >= 62 ? Dexterity.LEFT_HANDED : Dexterity.RIGHT_HANDED;
-			System.out.println(name + "'s strength is " + strength);
-			System.out.println(name + "'s endurance is " + endurance);
-			System.out.println(name + "'s constitution is " + constitution);
-			System.out.println(name + "'s expertise is " + expertise);
-			System.out.println(name + " is " + dexterity);
-			System.out.println("You may now distribute " + name
+			gui.writeMessage(name + "'s strength is " + strength);
+			gui.writeMessage(name + "'s endurance is " + endurance);
+			gui.writeMessage(name + "'s constitution is " + constitution);
+			gui.writeMessage(name + "'s expertise is " + expertise);
+			gui.writeMessage(name + " is " + dexterity);
+			gui.writeMessage("You may now distribute " + name
 					+ "'s constitution points among his/her body parts (head, body, right arm, left arm). Each part requires at least 1 point.");
-			System.out.println("Enter the number of constituion points to assign to " + name + "'s head. (up to "
+			gui.writeMessage("Enter the number of constituion points to assign to " + name + "'s head. (up to "
 					+ (constitution - 3) + ").");
-			int head = Utility.getInt(scanner, constitution - 3);
-			System.out.println("Enter the number of constituion points to assign to " + name + "'s body. (up to "
+			int head = Utility.getInt(constitution - 3);
+			gui.writeMessage("Enter the number of constituion points to assign to " + name + "'s body. (up to "
 					+ (constitution - head - 2) + ").");
-			int body = Utility.getInt(scanner, constitution - head - 2);
-			System.out.println("Enter the number of constituion points to assign to " + name + "'s left arm. (up to "
+			int body = Utility.getInt(constitution - head - 2);
+			gui.writeMessage("Enter the number of constituion points to assign to " + name + "'s left arm. (up to "
 					+ (constitution - head - body - 1) + ").");
-			int leftArm = Utility.getInt(scanner, constitution - head - body - 1);
-			System.out.println(name + "'s remaining consitution points have been added to his/her right arm.");
+			int leftArm = Utility.getInt(constitution - head - body - 1);
+			gui.writeMessage(name + "'s remaining consitution points have been added to his/her right arm.");
 			int rightArm = constitution - head - body - leftArm;
 			Pirate pirate = new Pirate(head, leftArm, rightArm, body, strength, endurance, constitution, expertise,
 					dexterity, name);
@@ -185,9 +195,9 @@ public class ClientMain
 		}
 		else if (packet.type == Plan.class)
 		{
-			System.out.println("Plan your turn.");
+			gui.writeMessage("Plan your turn.");
 			// TODO: unfinished
-			scanner.nextLine();
+			gui.keyboardInput.nextLine();
 			Plan plan = null;
 			do
 			{
@@ -200,7 +210,7 @@ public class ClientMain
 				// validated, then it's done.
 			}
 			while (plan == null);
-			System.out.println(plan);
+			gui.writeMessage(plan.toString());
 			connection.write(new ResponsePacket<Plan>(plan));
 		}
 		else

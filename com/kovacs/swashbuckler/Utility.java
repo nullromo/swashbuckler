@@ -7,10 +7,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Collections;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 /*
@@ -19,6 +17,54 @@ import java.util.regex.Pattern;
  */
 public class Utility
 {
+	/*
+	 * Tells whether a character is a printable character in the game or not.
+	 */
+	public static boolean isPrintableCharacter(char character)
+	{
+		if (Character.isLetterOrDigit(character))
+			return true;
+		switch (character)
+		{
+			case ' ':
+			case '!':
+			case '@':
+			case '#':
+			case '$':
+			case '%':
+			case '^':
+			case '&':
+			case '*':
+			case '(':
+			case ')':
+			case '-':
+			case '_':
+			case '=':
+			case '+':
+			case '[':
+			case ']':
+			case '{':
+			case '}':
+			case '\\':
+			case '|':
+			case ';':
+			case ':':
+			case '\'':
+			case '"':
+			case ',':
+			case '<':
+			case '.':
+			case '>':
+			case '/':
+			case '?':
+			case '`':
+			case '~':
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	/*
 	 * Throws a runtime exception because of an unimplemented feature or
 	 * unrecognized operation/type.
@@ -81,13 +127,15 @@ public class Utility
 	/*
 	 * Reads from a scanner until a valid name is entered.
 	 */
-	public static String getValidName(Scanner scanner)
+	public static String getValidName()
 	{
 		String name = null;
 		do
 		{
-			System.out.println("\t(Your pirate's name must be one or two words made of letters only.)");
-			name = scanner.nextLine();
+			ClientMain.main.gui.writeMessage("(Your pirate's name must be one or two words made of letters only.)");
+			System.out.println("waiting for line.");
+			name = ClientMain.main.gui.keyboardInput.nextLine();
+			System.out.println("sd");
 		}
 		while (!validName(name));
 		return name;
@@ -105,30 +153,29 @@ public class Utility
 	/*
 	 * Takes a non-zero integer from the standard input
 	 */
-	public static int getInt(Scanner scanner, int max)
+	public static int getInt(int max)
 	{
 		int i = 0;
 		while (i == 0)
 		{
 			try
 			{
-				i = scanner.nextInt();
+				i = Integer.parseInt(ClientMain.main.gui.keyboardInput.nextLine());
 			}
-			catch (InputMismatchException e)
+			catch (NumberFormatException e)
 			{
-				System.out.println("Please enter an integer.");
+				ClientMain.main.gui.writeMessage("Please enter an integer.");
 			}
 			if (i <= 0)
 			{
-				System.out.println("Must be greater than 0.");
+				ClientMain.main.gui.writeMessage("Must be greater than 0.");
 				i = 0;
 			}
 			else if (i > max)
 			{
-				System.out.println("That's too high.");
+				ClientMain.main.gui.writeMessage("That's too high.");
 				i = 0;
 			}
-			scanner.nextLine();
 		}
 		return i;
 	}

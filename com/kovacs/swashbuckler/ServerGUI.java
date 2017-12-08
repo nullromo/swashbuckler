@@ -9,6 +9,9 @@ import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.text.DefaultCaret;
 
+/*
+ * The class that controls graphical interactions on the server side.
+ */
 public class ServerGUI
 {
 	/*

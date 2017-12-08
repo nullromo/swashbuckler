@@ -1,5 +1,6 @@
 package com.kovacs.swashbuckler.game;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -20,8 +21,10 @@ import com.kovacs.swashbuckler.game.entity.Window;
 /*
  * This class represents the game board.
  */
-public class Board
+public class Board implements Serializable
 {
+	private static final long serialVersionUID = 1020738079583844540L;
+
 	/*
 	 * This list contains all the entities on the board.
 	 */
@@ -331,6 +334,6 @@ public class Board
 	 */
 	public List<Entity> allEntities(Class<?> type)
 	{
-		return entities.stream().filter(e -> e.getClass().equals(type)).collect(Collectors.toList());
+		return entities.stream().filter(e -> type.isAssignableFrom(e.getClass())).collect(Collectors.toList());
 	}
 }
