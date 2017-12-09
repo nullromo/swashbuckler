@@ -34,12 +34,12 @@ public class ServerMain
 	/*
 	 * The number of players in a game.
 	 */
-	private static final int NUM_PLAYERS = 2;
+	private static final int NUM_PLAYERS = 1;
 
 	/*
 	 * The number of pirates each player controls.
 	 */
-	private static final int PIRATES_PER_PLAYER = 2;
+	private static final int PIRATES_PER_PLAYER = 1;
 
 	/*
 	 * The number of turns in a game.

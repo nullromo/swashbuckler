@@ -23,14 +23,14 @@ public class ClientGUI extends Canvas
 	private static final long serialVersionUID = 495654254622340673L;
 
 	/*
-	 * The scale factor for text on the events log.
-	 */
-	private static final int TEXT_SCALE_FACTOR = 4;
-
-	/*
 	 * The dimensions of the window in virtual pixels.
 	 */
-	public static final double VIRTUAL_WIDTH = 1280.0 / 4, VIRTUAL_HEIGHT = 720.0 / 4;
+	public static final double VIRTUAL_WIDTH = 1280.0, VIRTUAL_HEIGHT = 720.0;
+
+	/*
+	 * The maximum length of a message in the output area.
+	 */
+	public static final int MAX_MESSAGE_LENGTH = 54;
 
 	/*
 	 * Default colors for things. //TODO: these will probably go away
@@ -116,7 +116,7 @@ public class ClientGUI extends Canvas
 				}
 			}
 		}.start();
-		resize(4);
+		resize(1);
 		startCharacterAdder();
 	}
 
@@ -148,15 +148,6 @@ public class ClientGUI extends Canvas
 			drawBoard(g);
 		drawOtherStuff(g);
 
-		at = new AffineTransform();
-		at.scale(scale / TEXT_SCALE_FACTOR, scale / TEXT_SCALE_FACTOR);
-		g.setTransform(at);
-
-		g.setColor(backgroundColor);
-		for (int i = 0; i < MAX_MESSAGES; i++)
-			TextDrawer.drawText(g, messageHistory.get(i), 3 * TEXT_SCALE_FACTOR, (6 + 2 * i) * TEXT_SCALE_FACTOR, 1);
-		TextDrawer.drawText(g, keyboardInput.keyboardInput, 3 * TEXT_SCALE_FACTOR, 173 * TEXT_SCALE_FACTOR, 1);
-
 		bs.show();
 		g.dispose();
 	}
@@ -167,9 +158,9 @@ public class ClientGUI extends Canvas
 	 */
 	public void writeMessage(String message)
 	{
-		while (message.length() > 54)
+		while (message.length() > MAX_MESSAGE_LENGTH)
 		{
-			int endIndex = 54;
+			int endIndex = MAX_MESSAGE_LENGTH;
 			while (!Character.isWhitespace(message.charAt(endIndex)))
 				endIndex--;
 			writeMessage(message.substring(0, endIndex));
@@ -195,10 +186,14 @@ public class ClientGUI extends Canvas
 	 */
 	private void drawEvents(Graphics2D g)
 	{
-		g.setPaint(new GradientPaint(0, 0, backgroundColor, 0, 80, foregroundColor));
-		g.fillRect(2, 5, 82, 166);
+		g.setPaint(new GradientPaint(0, 0, backgroundColor, 0, 320, foregroundColor));
+		g.fillRect(8, 20, 328, 664);
 		g.setColor(foregroundColor);
-		g.fillRect(2, 172, 82, 3);
+		g.fillRect(8, 688, 328, 12);
+		g.setColor(backgroundColor);
+		for (int i = 0; i < MAX_MESSAGES; i++)
+			TextDrawer.drawText(g, messageHistory.get(i), 12, 24 + 8 * i, 1);
+		TextDrawer.drawText(g, keyboardInput.keyboardInput, 12, 692, 1);
 	}
 
 	/*
@@ -207,15 +202,15 @@ public class ClientGUI extends Canvas
 	private void drawPlanHistory(Graphics g)
 	{
 		g.setColor(foregroundColor);
-		g.fillRect(247, 26, 71, 149);
+		g.fillRect(988, 104, 284, 596);
 		g.setColor(backgroundColor);
 		for (int i = 0; i < 7; i++)
-			g.fillRect(249 + i * 11, 28, 1, 145);
+			g.fillRect(996 + i * 44, 112, 4, 580);
 		for (int i = 0; i < 16; i++)
-			g.fillRect(249, 28 + i * 9, 67, 2);
-		g.fillRect(249, 172, 67, 1);
+			g.fillRect(996, 112 + i * 36, 268, 8);
+		g.fillRect(996, 688, 268, 4);
 		for (int i = 0; i < 6; i++)
-			g.drawRect(250 + i * 11, 29, 10, 9);
+			g.drawRect(1000 + i * 44, 116, 40, 36);
 	}
 
 	/*
@@ -224,12 +219,12 @@ public class ClientGUI extends Canvas
 	private void drawBoard(Graphics g)
 	{
 		g.setColor(foregroundColor);
-		g.fillRect(86, 5, 159, 170);
+		g.fillRect(344, 20, 636, 680);
 		g.setColor(backgroundColor);
 		for (int i = 0; i < 15; i++)
-			g.fillRect(88 + i * 11, 7, 1, 166);
+			g.fillRect(352 + i * 44, 28, 4, 664);
 		for (int i = 0; i < 16; i++)
-			g.fillRect(88, 7 + i * 11, 155, 1);
+			g.fillRect(352, 28 + i * 44, 620, 4);
 		for (Entity entity : board.allEntities(Entity.class))
 			for (BoardCoordinate coordinate : entity.coordinates)
 			{
@@ -237,41 +232,52 @@ public class ClientGUI extends Canvas
 				{
 					case CHAIR:
 						g.setColor(Color.DARK_GRAY);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case PIRATE:
 						g.setColor(Color.GREEN);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case MUG:
 						g.setColor(Color.BLUE);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case DAGGER:
 						g.setColor(Color.RED);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case SHELF:
 						g.setColor(Color.YELLOW);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case STAIRS:
 						g.setColor(Color.MAGENTA);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case BALCONY:
 						g.setColor(Color.CYAN);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case WINDOW:
 						g.setColor(Color.LIGHT_GRAY);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case TABLE:
 						g.setColor(Color.PINK);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case SWORD:
 						g.setColor(Color.WHITE);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case BROKEN_GLASS:
 						g.setColor(Color.BLACK);
+						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					default:
 						throw new RuntimeException("Unreachable code.");
 				}
-				g.fillOval((coordinate.number - 1) * 11 + 89, (coordinate.letter - 'a') * 11 + 8, 10, 10);
+				g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 			}
 	}
 

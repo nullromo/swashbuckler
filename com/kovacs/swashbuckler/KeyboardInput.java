@@ -10,7 +10,12 @@ public class KeyboardInput implements KeyListener
 	 * been pressed.
 	 */
 	private String nextLine;
-	
+
+	/*
+	 * Maximum number of characters that can be put into the input area.
+	 */
+	public static final int MAX_INPUT_LENGTH = 50;
+
 	/*
 	 * Stores the characters entered before enter is pressed.
 	 */
@@ -29,13 +34,13 @@ public class KeyboardInput implements KeyListener
 		}
 		else if (Utility.isPrintableCharacter(e.getKeyChar()))
 		{
-			if (keyboardInput.length() < 50)
+			if (keyboardInput.length() < MAX_INPUT_LENGTH)
 				keyboardInput += e.getKeyChar();
 		}
-		else if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
-			keyboardInput = keyboardInput.substring(0, keyboardInput.length() > 0 ? keyboardInput.length()-1 : 0);
+		else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
+			keyboardInput = keyboardInput.substring(0, keyboardInput.length() > 0 ? keyboardInput.length() - 1 : 0);
 	}
-	
+
 	@Override
 	public void keyReleased(KeyEvent e)
 	{
