@@ -61,7 +61,7 @@ public class Connection
 		Object result = null;
 		try
 		{
-			result = reader.readObject();
+			result = reader.readUnshared();
 		}
 		catch (ClassNotFoundException | IOException e)
 		{
@@ -78,7 +78,8 @@ public class Connection
 	{
 		try
 		{
-			writer.writeObject(object);
+			writer.writeUnshared(object);
+			writer.reset();
 		}
 		catch (IOException e)
 		{

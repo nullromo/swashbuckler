@@ -1,6 +1,7 @@
 package com.kovacs.swashbuckler.game.entity;
 
 import java.io.Serializable;
+import com.kovacs.swashbuckler.game.BoardCoordinate;
 
 public class Pirate extends Entity implements Serializable
 {
@@ -42,8 +43,9 @@ public class Pirate extends Entity implements Serializable
 	};
 
 	public Pirate(int head, int leftArm, int rightArm, int body, int strength, int endurance, int constitution,
-			int expertise, Dexterity dexterity, String name)
+			int expertise, Dexterity dexterity, String name, BoardCoordinate... boardCoordinates)
 	{
+		super(EntityType.PIRATE, boardCoordinates);
 		this.head = head;
 		this.leftArm = leftArm;
 		this.rightArm = rightArm;

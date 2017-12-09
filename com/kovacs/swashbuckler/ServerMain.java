@@ -34,12 +34,12 @@ public class ServerMain
 	/*
 	 * The number of players in a game.
 	 */
-	private static final int NUM_PLAYERS = 1;
+	private static final int NUM_PLAYERS = 2;
 
 	/*
 	 * The number of pirates each player controls.
 	 */
-	private static final int PIRATES_PER_PLAYER = 1;
+	private static final int PIRATES_PER_PLAYER = 2;
 
 	/*
 	 * The number of turns in a game.
@@ -283,6 +283,7 @@ public class ServerMain
 			coordinate = Board.randomPiratePosition();
 		pirate.coordinates.add(coordinate);
 		board.add(pirate);
+		System.out.println("new pirate. " + board.allEntities(Entity.class).size() + " is the size. sending board.");
 		writeAll(new PirateAcceptedPacket(pirate));
 		writeAll(new BoardPacket(board));
 		planHistory.put(pirate.getName(), new Order[MAX_TURNS][6]);

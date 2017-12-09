@@ -6,8 +6,10 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.Order;
 import com.kovacs.swashbuckler.game.Plan;
+import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.game.entity.Pirate.Dexterity;
 import com.kovacs.swashbuckler.packets.BoardPacket;
@@ -148,7 +150,11 @@ public class ClientMain
 		}
 		else if (packet instanceof BoardPacket)
 		{
-			gui.board = ((BoardPacket) packet).getBoard();
+			Board board = ((BoardPacket) packet).getBoard();
+			System.out.println("got board. " + board.allEntities(Entity.class).size() + " is the size. "
+					+ board.hashCode() + " is the hash code. ");
+			System.out.println(board);
+			gui.board = board;
 		}
 		else
 			Utility.typeError(packet.getClass());

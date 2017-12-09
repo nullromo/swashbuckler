@@ -3,6 +3,8 @@ package com.kovacs.swashbuckler;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import com.kovacs.swashbuckler.game.BoardCoordinate;
+import com.kovacs.swashbuckler.game.entity.Entity;
 
 public class MouseInput implements MouseMotionListener, MouseListener
 {
@@ -10,7 +12,7 @@ public class MouseInput implements MouseMotionListener, MouseListener
 	 * The virtual coordinates of the mouse.
 	 */
 	private int mouseX, mouseY;
-	
+
 	@Override
 	public void mouseClicked(MouseEvent e)
 	{
@@ -40,6 +42,8 @@ public class MouseInput implements MouseMotionListener, MouseListener
 			int number = (mouseX - 88) / 11 + 1;
 			char letter = (char) ((mouseY - 7) / 11 + 'a');
 			System.out.println("Clicked square " + number + "" + letter);
+			for (Entity entity : ClientMain.main.gui.board.getEntities(new BoardCoordinate(letter, number)))
+				System.out.println("  " + entity);
 		}
 	}
 

@@ -13,17 +13,7 @@ import java.util.Queue;
 import javax.swing.JFrame;
 import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
-import com.kovacs.swashbuckler.game.entity.Balcony;
-import com.kovacs.swashbuckler.game.entity.Chair;
-import com.kovacs.swashbuckler.game.entity.Dagger;
 import com.kovacs.swashbuckler.game.entity.Entity;
-import com.kovacs.swashbuckler.game.entity.Mug;
-import com.kovacs.swashbuckler.game.entity.Pirate;
-import com.kovacs.swashbuckler.game.entity.Shelf;
-import com.kovacs.swashbuckler.game.entity.Stairs;
-import com.kovacs.swashbuckler.game.entity.Sword;
-import com.kovacs.swashbuckler.game.entity.Table;
-import com.kovacs.swashbuckler.game.entity.Window;
 
 /*
  * The class that controls graphical interactions on the client side.
@@ -243,26 +233,44 @@ public class ClientGUI extends Canvas
 		for (Entity entity : board.allEntities(Entity.class))
 			for (BoardCoordinate coordinate : entity.coordinates)
 			{
-				if (entity instanceof Chair)
-					g.setColor(Color.DARK_GRAY);
-				else if (entity instanceof Pirate)
-					g.setColor(Color.GREEN);
-				else if (entity instanceof Mug)
-					g.setColor(Color.BLUE);
-				else if (entity instanceof Dagger)
-					g.setColor(Color.RED);
-				else if (entity instanceof Shelf)
-					g.setColor(Color.YELLOW);
-				else if (entity instanceof Stairs)
-					g.setColor(Color.MAGENTA);
-				else if (entity instanceof Balcony)
-					g.setColor(Color.CYAN);
-				else if (entity instanceof Window)
-					g.setColor(Color.LIGHT_GRAY);
-				else if (entity instanceof Table)
-					g.setColor(Color.PINK);
-				else if (entity instanceof Sword)
-					g.setColor(Color.WHITE);
+				switch (entity.type)
+				{
+					case CHAIR:
+						g.setColor(Color.DARK_GRAY);
+						break;
+					case PIRATE:
+						g.setColor(Color.GREEN);
+						break;
+					case MUG:
+						g.setColor(Color.BLUE);
+						break;
+					case DAGGER:
+						g.setColor(Color.RED);
+						break;
+					case SHELF:
+						g.setColor(Color.YELLOW);
+						break;
+					case STAIRS:
+						g.setColor(Color.MAGENTA);
+						break;
+					case BALCONY:
+						g.setColor(Color.CYAN);
+						break;
+					case WINDOW:
+						g.setColor(Color.LIGHT_GRAY);
+						break;
+					case TABLE:
+						g.setColor(Color.PINK);
+						break;
+					case SWORD:
+						g.setColor(Color.WHITE);
+						break;
+					case BROKEN_GLASS:
+						g.setColor(Color.BLACK);
+						break;
+					default:
+						throw new RuntimeException("Unreachable code.");
+				}
 				g.fillOval((coordinate.number - 1) * 11 + 89, (coordinate.letter - 'a') * 11 + 8, 10, 10);
 			}
 	}
@@ -299,6 +307,14 @@ public class ClientGUI extends Canvas
 		catch (NullPointerException e)
 		{
 			System.err.println("Null pointer from the character thread.");
+			try
+			{
+				characterAdder.join();
+			}
+			catch (InterruptedException e1)
+			{
+				e1.printStackTrace();
+			}
 		}
 	}
 

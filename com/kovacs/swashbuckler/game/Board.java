@@ -7,16 +7,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import com.kovacs.swashbuckler.Utility;
 import com.kovacs.swashbuckler.Utility.Direction;
-import com.kovacs.swashbuckler.game.entity.Balcony;
-import com.kovacs.swashbuckler.game.entity.Chair;
-import com.kovacs.swashbuckler.game.entity.Dagger;
 import com.kovacs.swashbuckler.game.entity.Entity;
-import com.kovacs.swashbuckler.game.entity.Mug;
-import com.kovacs.swashbuckler.game.entity.Shelf;
-import com.kovacs.swashbuckler.game.entity.Stairs;
-import com.kovacs.swashbuckler.game.entity.Sword;
-import com.kovacs.swashbuckler.game.entity.Table;
-import com.kovacs.swashbuckler.game.entity.Window;
+import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
 
 /*
  * This class represents the game board.
@@ -34,13 +26,14 @@ public class Board implements Serializable
 	{
 		// Since windows, stairs, and balconies do not move, there are single
 		// entities that hold all the appropriate coordinates.
-		add(new Balcony(new BoardCoordinate('a', 6), new BoardCoordinate('a', 7), new BoardCoordinate('a', 8),
-				new BoardCoordinate('a', 9)));
-		add(new Stairs(new BoardCoordinate('b', 7), new BoardCoordinate('b', 8)));
-		add(new Window(new BoardCoordinate('e', 1), new BoardCoordinate('k', 1), new BoardCoordinate('e', 14),
-				new BoardCoordinate('k', 14), new BoardCoordinate('a', 2), new BoardCoordinate('a', 12),
-				new BoardCoordinate('o', 2), new BoardCoordinate('o', 3), new BoardCoordinate('o', 7),
-				new BoardCoordinate('o', 8), new BoardCoordinate('o', 11), new BoardCoordinate('o', 12)));
+		add(new Entity(EntityType.BALCONY, new BoardCoordinate('a', 6), new BoardCoordinate('a', 7),
+				new BoardCoordinate('a', 8), new BoardCoordinate('a', 9)));
+		add(new Entity(EntityType.STAIRS, new BoardCoordinate('b', 7), new BoardCoordinate('b', 8)));
+		add(new Entity(EntityType.WINDOW, new BoardCoordinate('e', 1), new BoardCoordinate('k', 1),
+				new BoardCoordinate('e', 14), new BoardCoordinate('k', 14), new BoardCoordinate('a', 2),
+				new BoardCoordinate('a', 12), new BoardCoordinate('o', 2), new BoardCoordinate('o', 3),
+				new BoardCoordinate('o', 7), new BoardCoordinate('o', 8), new BoardCoordinate('o', 11),
+				new BoardCoordinate('o', 12)));
 
 		// TODO: place carpets
 
@@ -58,7 +51,7 @@ public class Board implements Serializable
 			BoardCoordinate coordinate = new BoardCoordinate(letter, number);
 			if (Utility.rand() > .5)
 				coordinate = coordinate.next(Utility.randomDirection());
-			Table t = new Table(coordinate);
+			Entity t = new Entity(EntityType.TABLE, coordinate);
 			Direction extensionDirection;
 			do
 			{
@@ -85,7 +78,7 @@ public class Board implements Serializable
 		ArrayList<BoardCoordinate> potentialMugLocations = new ArrayList<>();
 		for (Entity e : entities)
 		{
-			if (!(e instanceof Table))
+			if (!(e.type == EntityType.TABLE))
 				continue;
 			for (BoardCoordinate tableCoordinate : e.coordinates)
 			{
@@ -100,10 +93,10 @@ public class Board implements Serializable
 		}
 		Utility.shuffle(potentialChairLocations);
 		for (int i = 0; i < potentialChairLocations.size() * 2 / 3; i++)
-			add(new Chair(potentialChairLocations.get(i)));
+			add(new Entity(EntityType.CHAIR, potentialChairLocations.get(i)));
 		Utility.shuffle(potentialMugLocations);
 		for (int i = 0; i < potentialMugLocations.size() * 2 / 3; i++)
-			add(new Mug(potentialMugLocations.get(i)));
+			add(new Entity(EntityType.MUG, potentialMugLocations.get(i)));
 
 		// There can be up to 1 shelf on each wall. A shelf is selected based on
 		// predefined positions.
@@ -115,25 +108,25 @@ public class Board implements Serializable
 		{
 			BoardCoordinate base = new BoardCoordinate(Utility.randomElement(westWallOptions), 1);
 			if (!occupied(base) && !occupied(base.next(Direction.SOUTH)))
-				add(new Shelf(base, base.next(Direction.SOUTH)));
+				add(new Entity(EntityType.SHELF, base, base.next(Direction.SOUTH)));
 		}
 		if (Utility.rand() < .8)
 		{
 			BoardCoordinate base = new BoardCoordinate(Utility.randomElement(eastWallOptions), 14);
 			if (!occupied(base) && !occupied(base.next(Direction.SOUTH)))
-				add(new Shelf(base, base.next(Direction.SOUTH)));
+				add(new Entity(EntityType.SHELF, base, base.next(Direction.SOUTH)));
 		}
 		if (Utility.rand() < .8)
 		{
 			BoardCoordinate base = new BoardCoordinate('a', Utility.randomElement(northWallOptions));
 			if (!occupied(base) && !occupied(base.next(Direction.EAST)))
-				add(new Shelf(base, base.next(Direction.EAST)));
+				add(new Entity(EntityType.SHELF, base, base.next(Direction.EAST)));
 		}
 		if (Utility.rand() < .8)
 		{
 			BoardCoordinate base = new BoardCoordinate('o', Utility.randomElement(southWallOptions));
 			if (!occupied(base) && !occupied(base.next(Direction.EAST)))
-				add(new Shelf(base, base.next(Direction.EAST)));
+				add(new Entity(EntityType.SHELF, base, base.next(Direction.EAST)));
 		}
 
 		// TODO: place chandeliers
@@ -146,10 +139,11 @@ public class Board implements Serializable
 			public void accept(BoardCoordinate coordinate)
 			{
 				for (Entity e : getEntities(coordinate))
-					if (!(e instanceof Table) && !(e instanceof Balcony) && !(e instanceof Window))
+					if (!(e.type == EntityType.TABLE) && !(e.type == EntityType.BALCONY)
+							&& !(e.type == EntityType.WINDOW))
 						return;
 				if (Utility.rand() < .01)
-					add(new Dagger(coordinate));
+					add(new Entity(EntityType.DAGGER, coordinate));
 			}
 		});
 
@@ -169,7 +163,7 @@ public class Board implements Serializable
 		double r = Utility.rand();
 		int numSwords = r < .5 ? 1 : r > .9 ? 2 : 0;
 		for (int i = 0; i < numSwords; i++)
-			add(new Sword(potentialSwordLocations.get(i)));
+			add(new Entity(EntityType.SWORD, potentialSwordLocations.get(i)));
 	}
 
 	/*
@@ -178,7 +172,7 @@ public class Board implements Serializable
 	public boolean occupied(BoardCoordinate coordinate)
 	{
 		for (Entity e : getEntities(coordinate))
-			if (!(e instanceof Window))
+			if (!(e.type == EntityType.WINDOW))
 				return true;
 		return false;
 	}
@@ -314,7 +308,7 @@ public class Board implements Serializable
 		{
 			for (BoardCoordinate bc : e.coordinates)
 			{
-				board[bc.letter - 'a'][bc.number - 1] = e.getClass().getSimpleName().charAt(0);
+				board[bc.letter - 'a'][bc.number - 1] = e.type.name().charAt(0);
 			}
 		}
 		StringBuilder sb = new StringBuilder();

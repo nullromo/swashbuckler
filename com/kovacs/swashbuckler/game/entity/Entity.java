@@ -13,14 +13,28 @@ public class Entity implements Serializable
 	private static final long serialVersionUID = -441542423900716801L;
 
 	/*
+	 * All the types of entities.
+	 */
+	public enum EntityType
+	{
+		BALCONY, BROKEN_GLASS, CHAIR, DAGGER, MUG, PIRATE, SHELF, STAIRS, SWORD, TABLE, WINDOW
+	};
+
+	/*
+	 * This entity's type
+	 */
+	public EntityType type;
+
+	/*
 	 * An array of the coordinates that this entity takes up. Most entities take
 	 * up a single square, but tables, shelves, and carpets can take up more
 	 * than one.
 	 */
 	public ArrayList<BoardCoordinate> coordinates;
 
-	public Entity(BoardCoordinate... boardCoordinates)
+	public Entity(EntityType type, BoardCoordinate... boardCoordinates)
 	{
+		this.type = type;
 		coordinates = new ArrayList<>();
 		for (BoardCoordinate bc : boardCoordinates)
 		{
@@ -44,15 +58,15 @@ public class Entity implements Serializable
 		coordinates = newCoords;
 		return true;
 	}
-	
+
 	/*
 	 * Returns true if this entity touches the given coordinate
 	 */
 	public boolean touches(BoardCoordinate coordinate)
 	{
-		for (BoardCoordinate c: coordinates)
+		for (BoardCoordinate c : coordinates)
 		{
-			if(c.equals(coordinate))
+			if (c.equals(coordinate))
 			{
 				return true;
 			}
