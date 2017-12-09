@@ -9,6 +9,7 @@ import com.kovacs.swashbuckler.Utility;
 import com.kovacs.swashbuckler.Utility.Direction;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
+import com.kovacs.swashbuckler.game.entity.Table;
 
 /*
  * This class represents the game board.
@@ -51,7 +52,7 @@ public class Board implements Serializable
 			BoardCoordinate coordinate = new BoardCoordinate(letter, number);
 			if (Utility.rand() > .5)
 				coordinate = coordinate.next(Utility.randomDirection());
-			Entity t = new Entity(EntityType.TABLE, coordinate);
+			Entity t = new Table(EntityType.TABLE, tableNumber, coordinate);
 			Direction extensionDirection;
 			do
 			{

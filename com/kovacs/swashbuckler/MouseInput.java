@@ -37,10 +37,10 @@ public class MouseInput implements MouseMotionListener, MouseListener
 	public void mouseReleased(MouseEvent e)
 	{
 		System.out.println("Mouse at " + mouseX + ", " + mouseY);
-		if (88 <= mouseX && mouseX <= 241 && 7 <= mouseY && mouseY <= 171)
+		if (356 <= mouseX && mouseX <= 968 && 32 <= mouseY && mouseY <= 688)
 		{
-			int number = (mouseX - 88) / 11 + 1;
-			char letter = (char) ((mouseY - 7) / 11 + 'a');
+			int number = (mouseX - 356) / 44 + 1;
+			char letter = (char) ((mouseY - 32) / 44 + 'a');
 			System.out.println("Clicked square " + number + "" + letter);
 			for (Entity entity : ClientMain.main.gui.board.getEntities(new BoardCoordinate(letter, number)))
 				System.out.println("  " + entity);

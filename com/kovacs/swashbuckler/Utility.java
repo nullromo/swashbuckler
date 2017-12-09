@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
+import com.kovacs.swashbuckler.game.BoardCoordinate;
 
 /*
  * Contains general utilities and things that aren't really specific to a single
@@ -93,6 +94,18 @@ public class Utility
 	public static <T> T randomElement(T arr[])
 	{
 		return arr[randInt(0, arr.length - 1)];
+	}
+
+	/*
+	 * Returns the direction from a to b. Returns null if a and b are not
+	 * adjacent.
+	 */
+	public static Direction directionTo(BoardCoordinate a, BoardCoordinate b)
+	{
+		for (Direction direction : Direction.values())
+			if (a.next(direction) != null && a.next(direction).equals(b))
+				return direction;
+		return null;
 	}
 
 	/*

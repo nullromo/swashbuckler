@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
 import com.kovacs.swashbuckler.game.entity.Entity;
+import com.kovacs.swashbuckler.game.entity.Table;
 
 /*
  * The class that controls graphical interactions on the client side.
@@ -218,66 +219,63 @@ public class ClientGUI extends Canvas
 	 */
 	private void drawBoard(Graphics g)
 	{
-		g.setColor(foregroundColor);
-		g.fillRect(344, 20, 636, 680);
+		// g.setColor(foregroundColor);
+		// g.fillRect(344, 20, 636, 680);
+		g.drawImage(Images.floor, 344, 20, 636, 680, null);
 		g.setColor(backgroundColor);
 		for (int i = 0; i < 15; i++)
-			g.fillRect(352 + i * 44, 28, 4, 664);
+			g.fillRect(353 + i * 44, 29, 2, 662);
 		for (int i = 0; i < 16; i++)
-			g.fillRect(352, 28 + i * 44, 620, 4);
+			g.fillRect(353, 29 + i * 44, 618, 2);
 		for (Entity entity : board.allEntities(Entity.class))
 			for (BoardCoordinate coordinate : entity.coordinates)
 			{
+				int xDrawPosition = (coordinate.number - 1) * 44 + 355;
+				int yDrawPosition = (coordinate.letter - 'a') * 44 + 31;
 				switch (entity.type)
 				{
 					case CHAIR:
 						g.setColor(Color.DARK_GRAY);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
+						g.drawImage(Images.chair, xDrawPosition, yDrawPosition, 42, 42, null);
 						break;
 					case PIRATE:
 						g.setColor(Color.GREEN);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
+						g.fillOval(xDrawPosition, yDrawPosition, 42, 40);
 						break;
 					case MUG:
 						g.setColor(Color.BLUE);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
+						 g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
 						break;
 					case DAGGER:
 						g.setColor(Color.RED);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
+						g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
 						break;
 					case SHELF:
 						g.setColor(Color.YELLOW);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
+						g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
 						break;
 					case STAIRS:
-						g.setColor(Color.MAGENTA);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case BALCONY:
-						g.setColor(Color.CYAN);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case WINDOW:
-						g.setColor(Color.LIGHT_GRAY);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 						break;
 					case TABLE:
-						g.setColor(Color.PINK);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
+						g.setColor(new Color(0x4D320D));
+						g.drawImage(((Table) entity).getDrawImage(coordinate), xDrawPosition, yDrawPosition, 42, 42,
+								null);
 						break;
 					case SWORD:
 						g.setColor(Color.WHITE);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
+						g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
 						break;
 					case BROKEN_GLASS:
 						g.setColor(Color.BLACK);
-						g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
+						g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
 						break;
 					default:
 						throw new RuntimeException("Unreachable code.");
 				}
-				g.fillOval((coordinate.number - 1) * 44 + 356, (coordinate.letter - 'a') * 44 + 32, 40, 40);
 			}
 	}
 

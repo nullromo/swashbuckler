@@ -34,12 +34,12 @@ public class ServerMain
 	/*
 	 * The number of players in a game.
 	 */
-	private static final int NUM_PLAYERS = 1;
+	private static int NUM_PLAYERS = 2;
 
 	/*
 	 * The number of pirates each player controls.
 	 */
-	private static final int PIRATES_PER_PLAYER = 1;
+	private static int PIRATES_PER_PLAYER = 1;
 
 	/*
 	 * The number of turns in a game.
@@ -185,8 +185,8 @@ public class ServerMain
 			if (connections.size() == NUM_PLAYERS - 1)
 				stopAcceptingClients();
 			packet.getConnection().write(new MessagePacket("Welcome to Swashbuckler."));
-			packet.getConnection()
-					.write(new MessagePacket("To play, you will need to create " + PIRATES_PER_PLAYER + " pirates."));
+			packet.getConnection().write(new MessagePacket("To play, you will need to create " + PIRATES_PER_PLAYER
+					+ " pirate" + (PIRATES_PER_PLAYER == 1 ? "" : "s") + "."));
 			for (int i = 0; i < PIRATES_PER_PLAYER; i++)
 				packet.getConnection().write(new RequestPacket(Pirate.class));
 		}
@@ -288,6 +288,7 @@ public class ServerMain
 		writeAll(new BoardPacket(board));
 		planHistory.put(pirate.getName(), new Order[MAX_TURNS][6]);
 		gui.write(board);
+		System.out.println(board);
 		checkGameStart();
 	}
 
