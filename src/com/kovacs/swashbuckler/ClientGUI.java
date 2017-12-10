@@ -137,20 +137,16 @@ public class ClientGUI extends Canvas
 		}
 		Graphics graphics = bs.getDrawGraphics();
 		Graphics2D g = (Graphics2D) graphics;
-
 		AffineTransform at = new AffineTransform();
 		double scale = getWidth() / (double) VIRTUAL_WIDTH;
 		at.scale(scale, scale);
 		g.setTransform(at);
-
 		g.setColor(backgroundColor);
 		g.fillRect(0, 0, (int) VIRTUAL_WIDTH, (int) VIRTUAL_HEIGHT);
 		drawPlanHistory(g);
 		drawEvents(g);
-		if (board != null)
-			drawBoard(g);
+		drawBoard(g);
 		drawOtherStuff(g);
-
 		bs.show();
 		g.dispose();
 	}
@@ -221,14 +217,9 @@ public class ClientGUI extends Canvas
 	 */
 	private void drawBoard(Graphics g)
 	{
-		// g.setColor(foregroundColor);
-		// g.fillRect(344, 20, 636, 680);
+		if (board == null)
+			return;
 		g.drawImage(Images.tavernFloor, 344, 20, 636, 680, null);
-//		g.setColor(backgroundColor);
-//		for (int i = 0; i < 15; i++)
-//			g.fillRect(353 + i * 44, 29, 2, 662);
-//		for (int i = 0; i < 16; i++)
-//			g.fillRect(353, 29 + i * 44, 618, 2);
 		for (Entity entity : board.allEntities(Entity.class))
 			for (BoardCoordinate coordinate : entity.coordinates)
 			{

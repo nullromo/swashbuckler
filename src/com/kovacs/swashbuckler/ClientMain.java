@@ -163,7 +163,7 @@ public class ClientMain
 	{
 		if (packet.type == Pirate.class)
 		{
-			gui.writeMessage("Please enter your " + (firstPirate ? "first" : "next") + " pirate's name.");
+			gui.writeMessage("Please enter your " + (ServerMain.PIRATES_PER_PLAYER == 1?"":firstPirate ? "first " : "next ") + "pirate's name.");
 			firstPirate = false;
 			String name = Utility.getValidName();
 			int strength = Utility.rollDie() + Utility.rollDie() + Utility.rollDie();

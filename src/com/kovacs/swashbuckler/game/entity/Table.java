@@ -47,7 +47,12 @@ public class Table extends Entity implements Serializable
 		else if (neighborDirections.contains(Direction.SOUTH))
 			return isLong() ? Images.table_S_long : Images.table_S_short;
 		else
+		{
+			System.out.println(coordinates);
+			System.out.println(isLong());
+			System.out.println();
 			throw new RuntimeException("Impossible state.");
+		}
 	}
 
 	/*

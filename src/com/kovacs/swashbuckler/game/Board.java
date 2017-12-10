@@ -56,22 +56,23 @@ public class Board implements Serializable
 			BoardCoordinate coordinate = new BoardCoordinate(letter, number);
 			if (Utility.rand() > .5)
 				coordinate = coordinate.next(Utility.randomDirection());
-			Entity t = new Table(EntityType.TABLE, tableNumber, coordinate);
+			Entity table = new Table(EntityType.TABLE, tableNumber, coordinate);
 			Direction extensionDirection;
+			BoardCoordinate extensionCoordinate;
 			do
 			{
 				extensionDirection = Utility.randomElement(Utility.cardinalDirections);
-				coordinate = coordinate.next(extensionDirection);
+				extensionCoordinate = coordinate.next(extensionDirection);
 			}
-			while (occupied(coordinate));
-			t.coordinates.add(coordinate);
+			while (occupied(extensionCoordinate));
+			table.coordinates.add(extensionCoordinate);
 			if (Utility.rand() > .5)
 			{
-				coordinate = coordinate.next(extensionDirection);
-				if (coordinate != null && !occupied(coordinate))
-					t.coordinates.add(coordinate);
+				BoardCoordinate extensionCoordinate2 = extensionCoordinate.next(extensionDirection);
+				if (extensionCoordinate2 != null && !occupied(extensionCoordinate2))
+					table.coordinates.add(extensionCoordinate2);
 			}
-			add(t);
+			add(table);
 		}
 
 		// Every table square can potentially be surrounded by chairs (only in
