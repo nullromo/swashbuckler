@@ -1,7 +1,9 @@
 package com.kovacs.swashbuckler.game.entity;
 
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.ArrayList;
+import com.kovacs.swashbuckler.Images;
 import com.kovacs.swashbuckler.Utility.Direction;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
 
@@ -73,9 +75,40 @@ public class Entity implements Serializable
 		}
 		return false;
 	}
-	
-	@Override public String toString()
+
+	@Override
+	public String toString()
 	{
 		return type.toString();
+	}
+
+	/*
+	 * Returns the proper image to draw. For stationary entities, returns null.
+	 * For entities that override getImage, throws an exception.
+	 */
+	public BufferedImage getImage()
+	{
+		switch (type)
+		{
+			case BROKEN_GLASS:
+				return Images.brokenGlass;
+			case DAGGER:
+				return Images.dagger;
+			case MUG:
+				return Images.mug;
+			case SWORD:
+				return Images.sword;
+			case BALCONY:
+			case STAIRS:
+			case WINDOW:
+				return null;
+			case TABLE:
+			case SHELF:
+			case PIRATE:
+			case CHAIR:
+				throw new RuntimeException(type.name() + " entities must be drawn with their own getImage methods.");
+			default:
+				throw new RuntimeException("Unreachable code.");
+		}
 	}
 }

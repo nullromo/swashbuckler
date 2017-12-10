@@ -51,6 +51,15 @@ public class Table extends Entity implements Serializable
 	}
 
 	/*
+	 * Disable the superclass getImage method.
+	 */
+	@Override
+	public BufferedImage getImage()
+	{
+		throw new RuntimeException("Tables must be supplied with coordinates in order to determine their draw images.");
+	}
+
+	/*
 	 * Returns true if the table is 3 long and false if it's 2 long.
 	 */
 	private boolean isLong()

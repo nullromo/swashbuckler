@@ -12,6 +12,7 @@ import com.kovacs.swashbuckler.Utility.Direction;
 import com.kovacs.swashbuckler.game.entity.Chair;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
+import com.kovacs.swashbuckler.game.entity.Shelf;
 import com.kovacs.swashbuckler.game.entity.Table;
 
 /*
@@ -117,25 +118,25 @@ public class Board implements Serializable
 		{
 			BoardCoordinate base = new BoardCoordinate(Utility.randomElement(westWallOptions), 1);
 			if (!occupied(base) && !occupied(base.next(Direction.SOUTH)))
-				add(new Entity(EntityType.SHELF, base, base.next(Direction.SOUTH)));
+				add(new Shelf(EntityType.SHELF, Direction.WEST, base, base.next(Direction.SOUTH)));
 		}
 		if (Utility.rand() < .8)
 		{
 			BoardCoordinate base = new BoardCoordinate(Utility.randomElement(eastWallOptions), 14);
 			if (!occupied(base) && !occupied(base.next(Direction.SOUTH)))
-				add(new Entity(EntityType.SHELF, base, base.next(Direction.SOUTH)));
+				add(new Shelf(EntityType.SHELF, Direction.EAST, base, base.next(Direction.SOUTH)));
 		}
 		if (Utility.rand() < .8)
 		{
 			BoardCoordinate base = new BoardCoordinate('a', Utility.randomElement(northWallOptions));
 			if (!occupied(base) && !occupied(base.next(Direction.EAST)))
-				add(new Entity(EntityType.SHELF, base, base.next(Direction.EAST)));
+				add(new Shelf(EntityType.SHELF, Direction.NORTH, base, base.next(Direction.EAST)));
 		}
 		if (Utility.rand() < .8)
 		{
 			BoardCoordinate base = new BoardCoordinate('o', Utility.randomElement(southWallOptions));
 			if (!occupied(base) && !occupied(base.next(Direction.EAST)))
-				add(new Entity(EntityType.SHELF, base, base.next(Direction.EAST)));
+				add(new Shelf(EntityType.SHELF, Direction.SOUTH, base, base.next(Direction.EAST)));
 		}
 
 		// TODO: place chandeliers

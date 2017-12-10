@@ -46,7 +46,8 @@ public class MouseInput implements MouseMotionListener, MouseListener
 			for (Entity entity : ClientMain.main.gui.board.getEntities(new BoardCoordinate(letter, number)))
 				System.out.println("  " + entity);
 		}
-		ClientMain.main.gui.board = new Board();
+		if (e.getButton() == MouseEvent.BUTTON3)
+			ClientMain.main.gui.board = new Board();
 	}
 
 	@Override

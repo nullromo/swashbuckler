@@ -13,8 +13,9 @@ import java.util.Queue;
 import javax.swing.JFrame;
 import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
-import com.kovacs.swashbuckler.game.entity.Chair;
 import com.kovacs.swashbuckler.game.entity.Entity;
+import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
+import com.kovacs.swashbuckler.game.entity.Shelf;
 import com.kovacs.swashbuckler.game.entity.Table;
 
 /*
@@ -223,60 +224,22 @@ public class ClientGUI extends Canvas
 		// g.setColor(foregroundColor);
 		// g.fillRect(344, 20, 636, 680);
 		g.drawImage(Images.tavernFloor, 344, 20, 636, 680, null);
-		g.setColor(backgroundColor);
-		for (int i = 0; i < 15; i++)
-			g.fillRect(353 + i * 44, 29, 2, 662);
-		for (int i = 0; i < 16; i++)
-			g.fillRect(353, 29 + i * 44, 618, 2);
+//		g.setColor(backgroundColor);
+//		for (int i = 0; i < 15; i++)
+//			g.fillRect(353 + i * 44, 29, 2, 662);
+//		for (int i = 0; i < 16; i++)
+//			g.fillRect(353, 29 + i * 44, 618, 2);
 		for (Entity entity : board.allEntities(Entity.class))
 			for (BoardCoordinate coordinate : entity.coordinates)
 			{
 				int xDrawPosition = (coordinate.number - 1) * 44 + 355;
 				int yDrawPosition = (coordinate.letter - 'a') * 44 + 31;
-				switch (entity.type)
-				{
-					case CHAIR:
-						g.setColor(Color.DARK_GRAY);
-						g.drawImage(((Chair) entity).getImage(), xDrawPosition, yDrawPosition, 42, 42, null);
-						break;
-					case PIRATE:
-						g.setColor(Color.GREEN);
-						g.fillOval(xDrawPosition, yDrawPosition, 42, 40);
-						break;
-					case MUG:
-						g.setColor(Color.BLUE);
-						g.drawImage(Images.mug, xDrawPosition, yDrawPosition, 42, 42, null);
-						break;
-					case DAGGER:
-						g.setColor(Color.RED);
-						g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
-						break;
-					case SHELF:
-						g.setColor(Color.YELLOW);
-						g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
-						break;
-					case STAIRS:
-						break;
-					case BALCONY:
-						break;
-					case WINDOW:
-						break;
-					case TABLE:
-						g.setColor(new Color(0x4D320D));
-						g.drawImage(((Table) entity).getDrawImage(coordinate), xDrawPosition, yDrawPosition, 42, 42,
-								null);
-						break;
-					case SWORD:
-						g.setColor(Color.WHITE);
-						g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
-						break;
-					case BROKEN_GLASS:
-						g.setColor(Color.BLACK);
-						g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
-						break;
-					default:
-						throw new RuntimeException("Unreachable code.");
-				}
+				if (entity.type == EntityType.TABLE)
+					g.drawImage(((Table) entity).getDrawImage(coordinate), xDrawPosition, yDrawPosition, 42, 42, null);
+				else if (entity.type == EntityType.SHELF)
+					g.drawImage(((Shelf) entity).getDrawImage(coordinate), xDrawPosition, yDrawPosition, 42, 42, null);
+				else
+					g.drawImage(entity.getImage(), xDrawPosition, yDrawPosition, 42, 42, null);
 			}
 	}
 

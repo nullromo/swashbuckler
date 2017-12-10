@@ -22,6 +22,7 @@ public class Chair extends Entity implements Serializable
 		this.direction = direction;
 	}
 
+	@Override
 	public BufferedImage getImage()
 	{
 		switch (direction)
