@@ -13,6 +13,7 @@ import java.util.Queue;
 import javax.swing.JFrame;
 import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
+import com.kovacs.swashbuckler.game.entity.Chair;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Table;
 
@@ -236,7 +237,7 @@ public class ClientGUI extends Canvas
 				{
 					case CHAIR:
 						g.setColor(Color.DARK_GRAY);
-						g.drawImage(Images.chair, xDrawPosition, yDrawPosition, 42, 42, null);
+						g.drawImage(((Chair) entity).getImage(), xDrawPosition, yDrawPosition, 42, 42, null);
 						break;
 					case PIRATE:
 						g.setColor(Color.GREEN);
@@ -244,7 +245,7 @@ public class ClientGUI extends Canvas
 						break;
 					case MUG:
 						g.setColor(Color.BLUE);
-						g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
+						g.drawImage(Images.mug, xDrawPosition, yDrawPosition, 42, 42, null);
 						break;
 					case DAGGER:
 						g.setColor(Color.RED);

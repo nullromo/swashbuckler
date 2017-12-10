@@ -219,7 +219,32 @@ public class Utility
 	 */
 	public enum Direction
 	{
-		NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST
+		NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST;
+		
+		public Direction opposite()
+		{
+			switch(this)
+			{
+				case EAST:
+					return WEST;
+				case NORTH:
+					return SOUTH;
+				case NORTHEAST:
+					return SOUTHWEST;
+				case NORTHWEST:
+					return SOUTHEAST;
+				case SOUTH:
+					return NORTH;
+				case SOUTHEAST:
+					return NORTHWEST;
+				case SOUTHWEST:
+					return NORTHEAST;
+				case WEST:
+					return EAST;
+				default:
+					throw new RuntimeException("Unreachable code.");
+			}
+		}
 	}
 
 	// returns the external IP address of this computer. Super sketchy. I wrote

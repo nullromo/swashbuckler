@@ -39,20 +39,33 @@ public class Table extends Entity implements Serializable
 		else if (neighborDirections.contains(Direction.EAST) && neighborDirections.contains(Direction.WEST))
 			return Images.table_EW;
 		else if (neighborDirections.contains(Direction.EAST))
-			return Images.table_E;
+			return isLong() ? Images.table_E_long : Images.table_E_short;
 		else if (neighborDirections.contains(Direction.WEST))
-			return Images.table_W;
+			return isLong() ? Images.table_W_long : Images.table_W_short;
 		else if (neighborDirections.contains(Direction.NORTH))
-			return Images.table_N;
+			return isLong() ? Images.table_N_long : Images.table_N_short;
 		else if (neighborDirections.contains(Direction.SOUTH))
-			return Images.table_S;
+			return isLong() ? Images.table_S_long : Images.table_S_short;
 		else
 			throw new RuntimeException("Impossible state.");
+	}
 
+	/*
+	 * Returns true if the table is 3 long and false if it's 2 long.
+	 */
+	private boolean isLong()
+	{
+		return coordinates.size() == 3;
 	}
 
 	public int getTag()
 	{
 		return tag;
+	}
+
+	@Override
+	public String toString()
+	{
+		return super.toString() + " " + tag;
 	}
 }

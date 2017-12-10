@@ -3,6 +3,7 @@ package com.kovacs.swashbuckler;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
 import com.kovacs.swashbuckler.game.entity.Entity;
 
@@ -45,6 +46,7 @@ public class MouseInput implements MouseMotionListener, MouseListener
 			for (Entity entity : ClientMain.main.gui.board.getEntities(new BoardCoordinate(letter, number)))
 				System.out.println("  " + entity);
 		}
+		ClientMain.main.gui.board = new Board();
 	}
 
 	@Override

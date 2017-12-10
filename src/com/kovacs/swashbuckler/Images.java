@@ -10,10 +10,13 @@ import javax.imageio.ImageIO;
  */
 public class Images
 {
-	public static final BufferedImage chair = loadImage("chair.png"), table_S = loadImage("table_S.png"),
-			table_NS = loadImage("table_NS.png"), table_N = loadImage("table_N.png"),
-			table_E = loadImage("table_E.png"), table_W = loadImage("table_W.png"),
-			table_EW = loadImage("table_EW.png"), tavernFloor = loadImage("tavern_floor.png");
+	public static final BufferedImage table_NS = loadImage("table_NS.png"), table_EW = loadImage("table_EW.png"),
+			table_S_long = loadImage("table_S_long.png"), table_N_long = loadImage("table_N_long.png"),
+			table_E_long = loadImage("table_E_long.png"), table_W_long = loadImage("table_W_long.png"),
+			table_S_short = loadImage("table_S_short.png"), table_N_short = loadImage("table_N_short.png"),
+			table_E_short = loadImage("table_E_short.png"), table_W_short = loadImage("table_W_short.png"),
+			tavernFloor = loadImage("tavern_floor.png"), mug = loadImage("mug.png"), chair_N = loadImage("chair_N.png"),
+			chair_S = loadImage("chair_S.png"), chair_W = loadImage("chair_W.png"), chair_E = loadImage("chair_E.png");
 
 	/*
 	 * Loads and returns an image

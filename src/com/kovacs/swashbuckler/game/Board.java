@@ -2,11 +2,14 @@ package com.kovacs.swashbuckler.game;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import com.kovacs.swashbuckler.Utility;
 import com.kovacs.swashbuckler.Utility.Direction;
+import com.kovacs.swashbuckler.game.entity.Chair;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
 import com.kovacs.swashbuckler.game.entity.Table;
@@ -75,26 +78,31 @@ public class Board implements Serializable
 		// and randomized. Then a subset of that group is selected for actual
 		// chair placement. Mugs are done in the same way, except they can only
 		// appear on table squares.
-		ArrayList<BoardCoordinate> potentialChairLocations = new ArrayList<>();
+		HashMap<BoardCoordinate, Direction> potentialChairLocationsMap = new HashMap<>();
 		ArrayList<BoardCoordinate> potentialMugLocations = new ArrayList<>();
-		for (Entity e : entities)
+		for (Entity table : allEntities(Table.class))
 		{
-			if (!(e.type == EntityType.TABLE))
-				continue;
-			for (BoardCoordinate tableCoordinate : e.coordinates)
+			for (BoardCoordinate tableCoordinate : table.coordinates)
 			{
 				potentialMugLocations.add(tableCoordinate);
 				for (Direction nextToDirection : Utility.cardinalDirections)
 				{
 					BoardCoordinate newCoordinate = tableCoordinate.next(nextToDirection);
 					if (newCoordinate != null && !occupied(newCoordinate))
-						potentialChairLocations.add(newCoordinate);
+						potentialChairLocationsMap.put(newCoordinate, nextToDirection.opposite());
 				}
 			}
 		}
+		List<Map.Entry<BoardCoordinate, Direction>> potentialChairLocations = new ArrayList<Map.Entry<BoardCoordinate, Direction>>(
+				potentialChairLocationsMap.entrySet());
 		Utility.shuffle(potentialChairLocations);
 		for (int i = 0; i < potentialChairLocations.size() * 2 / 3; i++)
-			add(new Entity(EntityType.CHAIR, potentialChairLocations.get(i)));
+		{
+			BoardCoordinate location = potentialChairLocations.get(i).getKey();
+			Direction direction = potentialChairLocations.get(i).getValue();
+			if (!occupied(location))
+				add(new Chair(EntityType.CHAIR, direction, location));
+		}
 		Utility.shuffle(potentialMugLocations);
 		for (int i = 0; i < potentialMugLocations.size() * 2 / 3; i++)
 			add(new Entity(EntityType.MUG, potentialMugLocations.get(i)));
