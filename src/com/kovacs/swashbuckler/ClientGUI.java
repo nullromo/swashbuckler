@@ -221,7 +221,7 @@ public class ClientGUI extends Canvas
 	{
 		// g.setColor(foregroundColor);
 		// g.fillRect(344, 20, 636, 680);
-		g.drawImage(Images.floor, 344, 20, 636, 680, null);
+		g.drawImage(Images.tavernFloor, 344, 20, 636, 680, null);
 		g.setColor(backgroundColor);
 		for (int i = 0; i < 15; i++)
 			g.fillRect(353 + i * 44, 29, 2, 662);
@@ -244,7 +244,7 @@ public class ClientGUI extends Canvas
 						break;
 					case MUG:
 						g.setColor(Color.BLUE);
-						 g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
+						g.fillOval(xDrawPosition, yDrawPosition, 42, 42);
 						break;
 					case DAGGER:
 						g.setColor(Color.RED);

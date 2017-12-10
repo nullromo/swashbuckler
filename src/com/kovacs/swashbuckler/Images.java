@@ -13,7 +13,7 @@ public class Images
 	public static final BufferedImage chair = loadImage("chair.png"), table_S = loadImage("table_S.png"),
 			table_NS = loadImage("table_NS.png"), table_N = loadImage("table_N.png"),
 			table_E = loadImage("table_E.png"), table_W = loadImage("table_W.png"),
-			table_EW = loadImage("table_EW.png"), floor = loadImage("floor.png");
+			table_EW = loadImage("table_EW.png"), tavernFloor = loadImage("tavern_floor.png");
 
 	/*
 	 * Loads and returns an image
