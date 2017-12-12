@@ -10,7 +10,10 @@ import java.io.Serializable;
 public class RequestPacket extends Packet implements Serializable
 {
 	private static final long serialVersionUID = -6972542971370931041L;
-	
+
+	/*
+	 * The class of the requested object
+	 */
 	public Class<?> type;
 
 	public RequestPacket(Class<?> type)

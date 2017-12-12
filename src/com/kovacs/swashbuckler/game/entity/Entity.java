@@ -19,7 +19,7 @@ public class Entity implements Serializable
 	 */
 	public enum EntityType
 	{
-		BALCONY, BROKEN_GLASS, CHAIR, DAGGER, MUG, PIRATE, SHELF, STAIRS, SWORD, TABLE, WINDOW
+		BALCONY, BROKEN_GLASS, CHAIR, DAGGER, MUG, PIRATE, SHELF, STAIRS, SWORD, TABLE, WINDOW, CARPET, CHANDELIER
 	};
 
 	/*
@@ -98,6 +98,8 @@ public class Entity implements Serializable
 				return Images.mug;
 			case SWORD:
 				return Images.sword;
+			case CHANDELIER:
+				return Images.chandelier;
 			case BALCONY:
 			case STAIRS:
 			case WINDOW:
@@ -106,6 +108,7 @@ public class Entity implements Serializable
 			case SHELF:
 			case PIRATE:
 			case CHAIR:
+			case CARPET:
 				throw new RuntimeException(type.name() + " entities must be drawn with their own getImage methods.");
 			default:
 				throw new RuntimeException("Unreachable code.");

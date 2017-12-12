@@ -38,8 +38,6 @@ public class Plan implements Serializable
 	 * the current game state, only that it is generally valid under no
 	 * assumptions.
 	 */
-	// TODO: it is the server's job to handle validation of carry-over steps of
-	// required rest.
 	// TODO: it is the server's job to determine illegal actions based on
 	// character state and validate plans against these conditions. The client
 	// should be warned and asked to resubmit their plan in any case where the
@@ -86,9 +84,7 @@ public class Plan implements Serializable
 	{
 		StringBuilder sb = new StringBuilder("Turn " + turn + ": | ");
 		for (Order order : orders)
-		{
 			sb.append(order.getAbbreviation()).append(" | ");
-		}
 		return sb.append("+ " + carryOverRests).toString();
 	}
 

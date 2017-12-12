@@ -14,7 +14,7 @@ public class ResponsePacket<T> extends Packet implements Serializable
 	/*
 	 * The object being sent (payload).
 	 */
-	T object;
+	private T object;
 
 	public ResponsePacket(T object)
 	{

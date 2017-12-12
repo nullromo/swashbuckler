@@ -3,12 +3,15 @@ package com.kovacs.swashbuckler.game;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import com.kovacs.swashbuckler.Utility;
 import com.kovacs.swashbuckler.Utility.Direction;
+import com.kovacs.swashbuckler.game.entity.Carpet;
 import com.kovacs.swashbuckler.game.entity.Chair;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
@@ -40,7 +43,48 @@ public class Board implements Serializable
 				new BoardCoordinate('o', 7), new BoardCoordinate('o', 8), new BoardCoordinate('o', 11),
 				new BoardCoordinate('o', 12)));
 
-		// TODO: place carpets
+		// There are 2 potential carpets. First each has a random chance to not
+		// appear, then a random square (not on the edge of the room) is picked
+		// for the start of the carpet. It then tries to find space to exist.
+		for (int carpetNumber = 0; carpetNumber < 2; carpetNumber++)
+		{
+			if (Utility.rand() > .75)
+				continue;
+			boolean valid = false;
+			BoardCoordinate[] footprint = new BoardCoordinate[12];
+			Direction direction = null;
+			while (!valid)
+			{
+				BoardCoordinate startingSquare = BoardCoordinate.random();
+				footprint[0] = startingSquare;
+				int letterIncrement = Utility.randomElement(new Integer[] { -1, 0, 1 });
+				int numberIncrement = letterIncrement == 0 ? Utility.randomElement(new Integer[] { -1, 1 }) : 0;
+				for (int i = 1; i < 6; i++)
+					footprint[i] = new BoardCoordinate((char) (footprint[i - 1].letter + letterIncrement),
+							footprint[i - 1].number + numberIncrement);
+				direction = letterIncrement == 0
+						? Utility.randomElement(new Direction[] { Direction.NORTH, Direction.SOUTH })
+						: Utility.randomElement(new Direction[] { Direction.EAST, Direction.WEST });
+				for (int i = 6; i < 12; i++)
+					footprint[i] = footprint[i - 6].next(direction);
+				valid = true;
+				for (BoardCoordinate coordinate : footprint)
+				{
+					if (coordinate == null)
+						valid = false;
+					else if (coordinate.letter <= 'a' || coordinate.letter >= 'o' || coordinate.number >= 14
+							|| coordinate.number <= 1)
+						valid = false;
+					else if (occupied(coordinate))
+						valid = false;
+					else
+						for (Entity e : getEntities(coordinate))
+							if (e.type == EntityType.CARPET)
+								valid = false;
+				}
+			}
+			add(new Carpet(EntityType.CARPET, direction == Direction.EAST || direction == Direction.WEST, footprint));
+		}
 
 		// There are 9 potential tables that can appear at D4, D8, D12, H4, H8,
 		// H12, L4, L8, and L12. Each of these starting positions has a chance
@@ -140,7 +184,31 @@ public class Board implements Serializable
 				add(new Shelf(EntityType.SHELF, Direction.SOUTH, base, base.next(Direction.EAST)));
 		}
 
-		// TODO: place chandeliers
+		// The board is split into 4 regions for chandelier placement. A random
+		// square in each section is chosen, and then the process restarts if
+		// any chandeliers are within 3 squares of each other. Also, they can't
+		// be within 2 squares of the edge of the board.
+		for (int tries = 0; tries < 20; tries++)
+		{
+			BoardCoordinate[] chandelierCoordinates = new BoardCoordinate[4];
+			chandelierCoordinates[0] = new BoardCoordinate((char) (Utility.randInt(2, 7) + 'a'), Utility.randInt(3, 7));
+			chandelierCoordinates[1] = new BoardCoordinate((char) (Utility.randInt(8, 12) + 'a'),
+					Utility.randInt(3, 7));
+			chandelierCoordinates[2] = new BoardCoordinate((char) (Utility.randInt(2, 7) + 'a'),
+					Utility.randInt(8, 12));
+			chandelierCoordinates[3] = new BoardCoordinate((char) (Utility.randInt(8, 12) + 'a'),
+					Utility.randInt(8, 12));
+			Set<BoardCoordinate> footprintSet = new LinkedHashSet<BoardCoordinate>();
+			for (Direction direction : Direction.values())
+				for (int i = 0; i < 4; i++)
+					footprintSet.add(chandelierCoordinates[i].next(direction));
+			if (footprintSet.size() != 32)
+				continue;
+			for (int i = 0; i < 4; i++)
+				if (Utility.rand() < .75)
+					add(new Entity(EntityType.CHANDELIER, chandelierCoordinates[i]));
+			break;
+		}
 
 		// Daggers can appear on the floor and on tables. There is a small
 		// chance to spawn one in every eligible square.
@@ -182,8 +250,8 @@ public class Board implements Serializable
 	 */
 	public boolean occupied(BoardCoordinate coordinate)
 	{
-		for (Entity e : getEntities(coordinate))
-			if (!(e.type == EntityType.WINDOW))
+		for (Entity entity : getEntities(coordinate))
+			if (!(entity.type == EntityType.WINDOW) && !(entity.type == EntityType.CARPET))
 				return true;
 		return false;
 	}
@@ -224,90 +292,6 @@ public class Board implements Serializable
 			{
 				f.accept(new BoardCoordinate(letter, number));
 			}
-		}
-	}
-
-	/*
-	 * Picks a random square for a pirate to go.
-	 */
-	public static BoardCoordinate randomPiratePosition()
-	{
-		switch (Utility.rollDoubleDigit())
-		{
-			case 11:
-				return new BoardCoordinate('b', 2);
-			case 12:
-				return new BoardCoordinate('b', 5);
-			case 13:
-				return new BoardCoordinate('b', 8);
-			case 14:
-				return new BoardCoordinate('b', 11);
-			case 15:
-				return new BoardCoordinate('b', 14);
-			case 16:
-				return new BoardCoordinate('d', 1);
-			case 21:
-				return new BoardCoordinate('d', 4);
-			case 22:
-				return new BoardCoordinate('d', 7);
-			case 23:
-				return new BoardCoordinate('d', 10);
-			case 24:
-				return new BoardCoordinate('d', 13);
-			case 25:
-				return new BoardCoordinate('f', 3);
-			case 26:
-				return new BoardCoordinate('f', 6);
-			case 31:
-				return new BoardCoordinate('f', 9);
-			case 32:
-				return new BoardCoordinate('f', 12);
-			case 33:
-				return new BoardCoordinate('f', 14);
-			case 34:
-				return new BoardCoordinate('h', 1);
-			case 35:
-				return new BoardCoordinate('h', 4);
-			case 36:
-				return new BoardCoordinate('h', 7);
-			case 41:
-				return new BoardCoordinate('h', 10);
-			case 42:
-				return new BoardCoordinate('h', 13);
-			case 43:
-				return new BoardCoordinate('j', 2);
-			case 44:
-				return new BoardCoordinate('j', 5);
-			case 45:
-				return new BoardCoordinate('j', 8);
-			case 46:
-				return new BoardCoordinate('j', 11);
-			case 51:
-				return new BoardCoordinate('j', 14);
-			case 52:
-				return new BoardCoordinate('l', 3);
-			case 53:
-				return new BoardCoordinate('l', 6);
-			case 54:
-				return new BoardCoordinate('l', 9);
-			case 55:
-				return new BoardCoordinate('l', 12);
-			case 56:
-				return new BoardCoordinate('l', 14);
-			case 61:
-				return new BoardCoordinate('n', 2);
-			case 62:
-				return new BoardCoordinate('n', 5);
-			case 63:
-				return new BoardCoordinate('n', 7);
-			case 64:
-				return new BoardCoordinate('n', 10);
-			case 65:
-				return new BoardCoordinate('n', 12);
-			case 66:
-				return new BoardCoordinate('n', 14);
-			default:
-				throw new RuntimeException("Unreachable code.");
 		}
 	}
 

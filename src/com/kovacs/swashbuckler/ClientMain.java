@@ -163,7 +163,8 @@ public class ClientMain
 	{
 		if (packet.type == Pirate.class)
 		{
-			gui.writeMessage("Please enter your " + (ServerMain.PIRATES_PER_PLAYER == 1?"":firstPirate ? "first " : "next ") + "pirate's name.");
+			gui.writeMessage("Please enter your "
+					+ (ServerMain.PIRATES_PER_PLAYER == 1 ? "" : firstPirate ? "first " : "next ") + "pirate's name.");
 			firstPirate = false;
 			String name = Utility.getValidName();
 			int strength = Utility.rollDie() + Utility.rollDie() + Utility.rollDie();
@@ -198,7 +199,6 @@ public class ClientMain
 		else if (packet.type == Plan.class)
 		{
 			gui.writeMessage("Plan your turn.");
-			// TODO: unfinished
 			gui.keyboardInput.nextLine();
 			Plan plan = null;
 			do

@@ -260,8 +260,7 @@ public class ServerMain
 			if (order == Order.REST)
 				restsCarriedOver++;
 			else if (order != null)
-				// TODO: this can be eliminated once it is tested.
-				throw new RuntimeException("Non-rest order carried over");
+				throw new RuntimeException("Non-rest order carried over. This should never have happened.");
 			else
 				break;
 		for (int i = 0; i < restsCarriedOver; i++)
@@ -276,11 +275,14 @@ public class ServerMain
 	 */
 	private void placePirate(Pirate pirate)
 	{
-		// TODO: Catch the infinite loop possibility where the pirate doesn't
-		// ever get placed.
-		BoardCoordinate coordinate = Board.randomPiratePosition();
+		BoardCoordinate coordinate = BoardCoordinate.randomPiratePosition();
+		int tries = 0;
 		while (board.occupied(coordinate))
-			coordinate = Board.randomPiratePosition();
+		{
+			coordinate = BoardCoordinate.randomPiratePosition();
+			if (tries++ > 1000)
+				coordinate = BoardCoordinate.random();
+		}
 		pirate.coordinates.add(coordinate);
 		board.add(pirate);
 		System.out.println("new pirate. " + board.allEntities(Entity.class).size() + " is the size. sending board.");

@@ -44,30 +44,30 @@ public class Shelf extends Entity implements Serializable
 		if (wall == Direction.EAST)
 		{
 			if (direction == Direction.SOUTH)
-				return Images.shelfEastTop;
+				return Images.shelf_E_top;
 			else
-				return Images.shelfEastBottom;
+				return Images.shelf_E_bottom;
 		}
 		else if (wall == Direction.WEST)
 		{
 			if (direction == Direction.SOUTH)
-				return Images.shelfWestTop;
+				return Images.shelf_W_top;
 			else
-				return Images.shelfWestBottom;
+				return Images.shelf_W_bottom;
 		}
 		else if (wall == Direction.NORTH)
 		{
 			if (direction == Direction.EAST)
-				return Images.shelfNorthLeft;
+				return Images.shelf_N_left;
 			else
-				return Images.shelfNorthRight;
+				return Images.shelf_N_right;
 		}
 		else
 		{
 			if (direction == Direction.EAST)
-				return Images.shelfSouthLeft;
+				return Images.shelf_S_left;
 			else
-				return Images.shelfSouthRight;
+				return Images.shelf_S_right;
 		}
 	}
 }

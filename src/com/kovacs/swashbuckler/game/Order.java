@@ -8,7 +8,7 @@ public enum Order
 	/*
 	 * These are lists of all the possible orders that pirates can be given.
 	 */
-	//@formatter:off
+	// @formatter:off
 	THROW_DAGGER("Throw Dagger", "wd", 1, OrderType.ACTION), 
 	THROW_SWORD("Throw Sword", "ws", 1, OrderType.ACTION),
 	WAVE_HAT("Wave Hat", "wh", 1, OrderType.ACTION), 
@@ -50,7 +50,8 @@ public enum Order
 	SWING_3("Swing 3", "g3", 2, OrderType.MOVEMENT),
 	SWING_4("Swing 4", "g4", 2, OrderType.MOVEMENT),
 	SWING_5("Swing 5", "g5", 2, OrderType.MOVEMENT);
-	//@formatter:on //TODO: figure out how to format this.
+	// @formatter:on
+
 	/*
 	 * The name is what the user will select from, whereas the abbreviation is
 	 * the small code that gets put into the planning box.
@@ -89,7 +90,7 @@ public enum Order
 	{
 		return rests;
 	}
-	
+
 	public OrderType getOrderType()
 	{
 		return orderType;

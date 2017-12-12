@@ -5,9 +5,6 @@ import com.kovacs.swashbuckler.Connection;
 /*
  * The base class for client-server communication packets.
  */
-// TODO: many packets and entities seem to be repetitive and the only thing that
-// matters is their type. I should probably change it to a single class and use
-// generics for the data type.
 public class Packet
 {
 	/*

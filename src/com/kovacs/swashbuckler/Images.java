@@ -19,11 +19,12 @@ public class Images
 			tavernFloor = loadImage("tavern_floor.png"), mug = loadImage("mug.png"), chair_N = loadImage("chair_N.png"),
 			chair_S = loadImage("chair_S.png"), chair_W = loadImage("chair_W.png"), chair_E = loadImage("chair_E.png"),
 			sword = loadImage("sword.png"), dagger = loadImage("dagger.png"),
-			brokenGlass = loadImage("broken_glass.png"), shelfWestTop = loadImage("shelf_W_top.png"),
-			shelfWestBottom = loadImage("shelf_W_bottom.png"), shelfNorthLeft = loadImage("shelf_N_left.png"),
-			shelfNorthRight = loadImage("shelf_N_right.png"), shelfEastTop = loadImage("shelf_E_top.png"),
-			shelfEastBottom = loadImage("shelf_E_bottom.png"), shelfSouthRight = loadImage("shelf_S_right.png"),
-			shelfSouthLeft = loadImage("shelf_S_left.png");
+			brokenGlass = loadImage("broken_glass.png"), shelf_W_top = loadImage("shelf_W_top.png"),
+			shelf_W_bottom = loadImage("shelf_W_bottom.png"), shelf_N_left = loadImage("shelf_N_left.png"),
+			shelf_N_right = loadImage("shelf_N_right.png"), shelf_E_top = loadImage("shelf_E_top.png"),
+			shelf_E_bottom = loadImage("shelf_E_bottom.png"), shelf_S_right = loadImage("shelf_S_right.png"),
+			shelf_S_left = loadImage("shelf_S_left.png"), chandelier = loadImage("chandelier.png"),
+			carpet_NS = loadImage("carpet_NS.png"), carpet_EW = loadImage("carpet_EW.png");
 
 	/*
 	 * Loads and returns an image
