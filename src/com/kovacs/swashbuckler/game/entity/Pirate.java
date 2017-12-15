@@ -1,6 +1,8 @@
 package com.kovacs.swashbuckler.game.entity;
 
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
+import com.kovacs.swashbuckler.Images;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
 
 public class Pirate extends Entity implements Serializable
@@ -56,6 +58,12 @@ public class Pirate extends Entity implements Serializable
 		this.expertise = expertise;
 		this.dexterity = dexterity;
 		this.name = name;
+	}
+	
+	//TODO: change this, obviously.
+	@Override public BufferedImage getImage()
+	{
+		return Images.pirate;
 	}
 
 	@Override

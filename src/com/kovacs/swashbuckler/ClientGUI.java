@@ -1,5 +1,6 @@
 package com.kovacs.swashbuckler;
 
+import java.awt.BasicStroke;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -15,6 +16,7 @@ import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
+import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.game.entity.Shelf;
 import com.kovacs.swashbuckler.game.entity.Table;
 
@@ -33,7 +35,13 @@ public class ClientGUI extends Canvas
 	/*
 	 * The maximum length of a message in the output area.
 	 */
-	public static final int MAX_MESSAGE_LENGTH = 54;
+	public static final int MAX_MESSAGE_LENGTH_LARGE = 27;
+	public static final int MAX_MESSAGE_LENGTH_SMALL = 54;
+
+	/*
+	 * Keeps track of the text size setting.
+	 */
+	private static final boolean largeText = false;
 
 	/*
 	 * Default colors for things. //TODO: these will probably go away
@@ -55,7 +63,8 @@ public class ClientGUI extends Canvas
 	/*
 	 * The maximum number of messages that can fit on the screen.
 	 */
-	private static final int MAX_MESSAGES = 82;
+	private static final int MAX_MESSAGES_LARGE = 47;
+	private static final int MAX_MESSAGES_SMALL = 82;
 
 	/*
 	 * The main window of the gui.
@@ -79,14 +88,24 @@ public class ClientGUI extends Canvas
 	public Board board;
 
 	/*
+	 * The current pirate that is selected for planning.
+	 */
+	private Pirate selectedPirate;
+
+	/*
 	 * The thread that adds the characters to the output slowly.
 	 */
 	private Thread characterAdder;
 
+	/*
+	 * Keeps track of how big the window is.
+	 */
+	private double scale;
+
 	public ClientGUI()
 	{
 		messageHistory = new LinkedList<>();
-		for (int i = 0; i < MAX_MESSAGES; i++)
+		for (int i = 0; i < (largeText ? MAX_MESSAGES_LARGE : MAX_MESSAGES_SMALL); i++)
 			messageHistory.add("");
 		pendingCharacters = new LinkedList<>();
 		frame = new JFrame("Swashbuckler");
@@ -157,9 +176,9 @@ public class ClientGUI extends Canvas
 	 */
 	public void writeMessage(String message)
 	{
-		while (message.length() > MAX_MESSAGE_LENGTH)
+		while (message.length() > (largeText ? MAX_MESSAGE_LENGTH_LARGE : MAX_MESSAGE_LENGTH_SMALL))
 		{
-			int endIndex = MAX_MESSAGE_LENGTH;
+			int endIndex = largeText ? MAX_MESSAGE_LENGTH_LARGE : MAX_MESSAGE_LENGTH_SMALL;
 			while (!Character.isWhitespace(message.charAt(endIndex)))
 				endIndex--;
 			writeMessage(message.substring(0, endIndex));
@@ -186,13 +205,13 @@ public class ClientGUI extends Canvas
 	private void drawEvents(Graphics2D g)
 	{
 		g.setPaint(new GradientPaint(0, 0, backgroundColor, 0, 320, foregroundColor));
-		g.fillRect(8, 20, 328, 664);
+		g.fillRect(8, 20, 328, (largeText?658:664));
 		g.setColor(foregroundColor);
-		g.fillRect(8, 688, 328, 12);
+		g.fillRect(8, (largeText?682:688), 328, (largeText?18:12));
 		g.setColor(backgroundColor);
-		for (int i = 0; i < MAX_MESSAGES; i++)
-			TextDrawer.drawText(g, messageHistory.get(i), 12, 24 + 8 * i, 1);
-		TextDrawer.drawText(g, keyboardInput.keyboardInput, 12, 692, 1);
+		for (int i = 0; i < (largeText ? MAX_MESSAGES_LARGE : MAX_MESSAGES_SMALL); i++)
+			TextDrawer.drawText(g, messageHistory.get(i), 12, (largeText?18:24) + (largeText?14:8) * i, largeText ? 2 : 1);
+		TextDrawer.drawText(g, keyboardInput.keyboardInput, 12, largeText?686:692, largeText ? 2 : 1);
 	}
 
 	/*
@@ -200,6 +219,8 @@ public class ClientGUI extends Canvas
 	 */
 	private void drawPlanHistory(Graphics g)
 	{
+		if (selectedPirate == null)
+			return;
 		g.setColor(foregroundColor);
 		g.fillRect(988, 104, 284, 596);
 		g.setColor(backgroundColor);
@@ -210,6 +231,8 @@ public class ClientGUI extends Canvas
 		g.fillRect(996, 688, 268, 4);
 		for (int i = 0; i < 6; i++)
 			g.drawRect(1000 + i * 44, 116, 40, 36);
+		for (int i = 1; i <= 6; i++)
+			TextDrawer.drawText(g, "" + i, 1010 + (i - 1) * 44, 124, 4);
 	}
 
 	/*
@@ -229,6 +252,13 @@ public class ClientGUI extends Canvas
 					g.drawImage(((Table) entity).getDrawImage(coordinate), xDrawPosition, yDrawPosition, 42, 42, null);
 				else if (entity.type == EntityType.SHELF)
 					g.drawImage(((Shelf) entity).getDrawImage(coordinate), xDrawPosition, yDrawPosition, 42, 42, null);
+				else if (entity.type == EntityType.PIRATE && selectedPirate == (Pirate) entity)
+				{
+					((Graphics2D) g).setStroke(new BasicStroke(2));
+					g.setColor(Color.YELLOW);
+					g.drawRect(xDrawPosition - 1, yDrawPosition - 1, 44, 44);
+					g.drawImage(entity.getImage(), xDrawPosition, yDrawPosition, 42, 42, null);
+				}
 				else
 					g.drawImage(entity.getImage(), xDrawPosition, yDrawPosition, 42, 42, null);
 			}
@@ -237,8 +267,11 @@ public class ClientGUI extends Canvas
 	/*
 	 * Resizes the window. Scale of 1 sets it to the default.
 	 */
-	private void resize(double scale)
+	public void resize(double scale)
 	{
+		if (scale < .1)
+			scale = .1;
+		this.scale = scale;
 		setPreferredSize(new Dimension((int) (scale * VIRTUAL_WIDTH), (int) (scale * VIRTUAL_HEIGHT)));
 		setSize(new Dimension((int) (scale * VIRTUAL_WIDTH), (int) (scale * VIRTUAL_HEIGHT)));
 		frame.pack();
@@ -260,7 +293,8 @@ public class ClientGUI extends Canvas
 			}
 			else
 			{
-				messageHistory.set(MAX_MESSAGES - 1, messageHistory.get(MAX_MESSAGES - 1).concat(nextChar + ""));
+				messageHistory.set((largeText ? MAX_MESSAGES_LARGE : MAX_MESSAGES_SMALL) - 1, messageHistory
+						.get((largeText ? MAX_MESSAGES_LARGE : MAX_MESSAGES_SMALL) - 1).concat(nextChar + ""));
 			}
 		}
 		catch (NullPointerException e)
@@ -302,5 +336,29 @@ public class ClientGUI extends Canvas
 			}
 		};
 		characterAdder.start();
+	}
+
+	/*
+	 * Selects a pirate and does all associated things. Called when a player
+	 * clicks on a pirate.
+	 */
+	public void selectPirate(Pirate pirate)
+	{
+		selectedPirate = pirate;
+		// TODO: more goes here probably.
+	}
+
+	/*
+	 * Un-selects the currently selected pirate.
+	 */
+	public void deselectPirate()
+	{
+		selectedPirate = null;
+		// TODO: more might go here.
+	}
+
+	public double getScale()
+	{
+		return scale;
 	}
 }

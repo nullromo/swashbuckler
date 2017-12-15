@@ -49,7 +49,7 @@ public class ServerMain
 	/*
 	 * This is the single instance of the main class.
 	 */
-	public static ServerMain main = new ServerMain();
+	public static ServerMain main;
 
 	/*
 	 * This is the list of all clients' I/O interfaces.
@@ -98,6 +98,7 @@ public class ServerMain
 	 */
 	public static void main(String[] args)
 	{
+		main = new ServerMain();
 		// TODO: This thread just runs and accepts clients all the time. It
 		// needs to start games properly and such.
 		main.clientAcceptThread = new Thread()

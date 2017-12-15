@@ -24,7 +24,8 @@ public class Images
 			shelf_N_right = loadImage("shelf_N_right.png"), shelf_E_top = loadImage("shelf_E_top.png"),
 			shelf_E_bottom = loadImage("shelf_E_bottom.png"), shelf_S_right = loadImage("shelf_S_right.png"),
 			shelf_S_left = loadImage("shelf_S_left.png"), chandelier = loadImage("chandelier.png"),
-			carpet_NS = loadImage("carpet_NS.png"), carpet_EW = loadImage("carpet_EW.png");
+			carpet_NS = loadImage("carpet_NS.png"), carpet_EW = loadImage("carpet_EW.png"),
+			pirate = loadImage("pirate.png");
 
 	/*
 	 * Loads and returns an image
