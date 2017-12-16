@@ -2,7 +2,6 @@ package com.kovacs.swashbuckler;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
 import com.kovacs.swashbuckler.game.Board;
 
 public class KeyboardInput implements KeyListener
@@ -47,7 +46,6 @@ public class KeyboardInput implements KeyListener
 			ClientMain.main.gui.resize(ClientMain.main.gui.getScale() - .1);
 		else if (e.getKeyCode() == KeyEvent.VK_F2)
 			ClientMain.main.gui.board = new Board();
-
 	}
 
 	@Override

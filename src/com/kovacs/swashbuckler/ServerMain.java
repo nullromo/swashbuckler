@@ -18,6 +18,7 @@ import com.kovacs.swashbuckler.packets.NewConnectionPacket;
 import com.kovacs.swashbuckler.packets.NextTurnPacket;
 import com.kovacs.swashbuckler.packets.Packet;
 import com.kovacs.swashbuckler.packets.PirateAcceptedPacket;
+import com.kovacs.swashbuckler.packets.PlanAcceptedPacket;
 import com.kovacs.swashbuckler.packets.RequestPacket;
 import com.kovacs.swashbuckler.packets.ResponsePacket;
 
@@ -54,7 +55,7 @@ public class ServerMain
 	/*
 	 * This is the list of all clients' I/O interfaces.
 	 */
-	private ArrayList<Connection> connections = new ArrayList<Connection>();
+	private ArrayList<Connection> connections;
 
 	/*
 	 * This should turn to false on shutdown.
@@ -64,13 +65,13 @@ public class ServerMain
 	/*
 	 * The main board that represents the game
 	 */
-	private Board board = new Board();
+	private Board board;
 
 	/*
 	 * Holds all plans for all pirates. Maps pirate names to arrays of their
 	 * plans.
 	 */
-	private HashMap<String, Order[][]> planHistory = new HashMap<>();
+	private HashMap<String, Order[][]> planHistory;
 
 	/*
 	 * The thread that accepts clients.
@@ -80,28 +81,27 @@ public class ServerMain
 	/*
 	 * The socket that the server runs on.
 	 */
-	private static ServerSocket serverSocket;
+	private ServerSocket serverSocket;
 
 	/*
 	 * Tells whether or not the game is still accepting more clients.
 	 */
-	private static boolean acceptingClients = true;
+	private boolean acceptingClients = true;
 
 	/*
 	 * The gui for the server.
 	 */
-	private ServerGUI gui = new ServerGUI();
+	private ServerGUI gui;
 
-	/*
-	 * The program starts off by launching a client-accepting thread and a
-	 * response-accepting thread, and then running the run method.
-	 */
-	public static void main(String[] args)
+	private ServerMain()
 	{
-		main = new ServerMain();
+		connections = new ArrayList<Connection>();
+		gui = new ServerGUI();
+		planHistory = new HashMap<>();
+		board = new Board();
 		// TODO: This thread just runs and accepts clients all the time. It
 		// needs to start games properly and such.
-		main.clientAcceptThread = new Thread()
+		clientAcceptThread = new Thread()
 		{
 			@Override
 			public void run()
@@ -113,11 +113,11 @@ public class ServerMain
 					{
 						if (acceptingClients)
 						{
-							main.gui.write("Waiting for connections...");
+							gui.write("Waiting for connections...");
 							Socket s = serverSocket.accept();
-							main.gui.write("A client has connected from " + s.getInetAddress().getHostAddress() + ":"
+							gui.write("A client has connected from " + s.getInetAddress().getHostAddress() + ":"
 									+ s.getPort());
-							main.connections.add(new Connection(s));
+							connections.add(new Connection(s));
 						}
 					}
 				}
@@ -127,6 +127,15 @@ public class ServerMain
 				}
 			}
 		};
+	}
+	
+	/*
+	 * The program starts off by launching a client-accepting thread and a
+	 * response-accepting thread, and then running the run method.
+	 */
+	public static void main(String[] args)
+	{
+		main = new ServerMain();
 		// main.gui.write("External IP: " + Utility.getExternalIPAddress());
 		main.clientAcceptThread.start();
 		main.run();
@@ -213,6 +222,7 @@ public class ServerMain
 					return;
 				}
 			placePirate(pirate);
+			packet.getConnection().write(new PirateAcceptedPacket(pirate));
 		}
 		else if (packet.getType() == Plan.class)
 		{
@@ -222,6 +232,7 @@ public class ServerMain
 			{
 				addPlan(plan);
 				packet.getConnection().write(new MessagePacket("Planned [" + plan + "] for " + plan.getPirateName()));
+				packet.getConnection().write(new PlanAcceptedPacket(plan));
 				checkPlanningDone();
 			}
 			else
@@ -286,8 +297,7 @@ public class ServerMain
 		}
 		pirate.coordinates.add(coordinate);
 		board.add(pirate);
-		System.out.println("new pirate. " + board.allEntities(Entity.class).size() + " is the size. sending board.");
-		writeAll(new PirateAcceptedPacket(pirate));
+		writeAll(new MessagePacket(pirate.getName() + " has joined the game."));
 		writeAll(new BoardPacket(board));
 		planHistory.put(pirate.getName(), new Order[MAX_TURNS][6]);
 		gui.write(board);

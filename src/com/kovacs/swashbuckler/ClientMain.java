@@ -18,6 +18,7 @@ import com.kovacs.swashbuckler.packets.NewConnectionPacket;
 import com.kovacs.swashbuckler.packets.NextTurnPacket;
 import com.kovacs.swashbuckler.packets.Packet;
 import com.kovacs.swashbuckler.packets.PirateAcceptedPacket;
+import com.kovacs.swashbuckler.packets.PlanAcceptedPacket;
 import com.kovacs.swashbuckler.packets.RequestPacket;
 import com.kovacs.swashbuckler.packets.ResponsePacket;
 
@@ -31,7 +32,7 @@ public class ClientMain
 	/*
 	 * This is the single instance of the main class.
 	 */
-	public static ClientMain main = new ClientMain();
+	public static ClientMain main;
 
 	/*
 	 * The I/O wrapper for the client's connection
@@ -42,35 +43,43 @@ public class ClientMain
 	 * Holds the value that tells what turn the game is on (1-MAX_TURNS).
 	 */
 	// TODO: this should increment at the end of each turn.
-	private int currentTurn = 0;
+	public int currentTurn = 1;
 
 	/*
-	 * Holds a list of the pirates that this client controls.
+	 * Holds a list of the pirate names that this client controls.
 	 */
-	private ArrayList<Pirate> pirates = new ArrayList<>();
+	private ArrayList<String> ownedPirateNames;
+
+	/*
+	 * Keeps track of which pirates still need their plans. Resets to an empty
+	 * list every new turn.
+	 */
+	private ArrayList<String> plannedPirateNames;
 
 	/*
 	 * Holds the history of each pirate's plans. Maps pirate names to arrays of
 	 * their plans.
 	 */
-	private HashMap<String, Plan[]> planHistory = new HashMap<>();
+	public HashMap<String, Plan[]> planHistory;
+
+	/*
+	 * Keeps track of the plans that are about to be submitted.
+	 */
+	private Order[] planInProgress;
 
 	/*
 	 * The gui for the client
 	 */
-	public ClientGUI gui = new ClientGUI();
+	public ClientGUI gui;
 
 	/*
 	 * An aesthetic thing so that the text looks right.
 	 */
 	private boolean firstPirate = true;
 
-	/*
-	 * The main method sets up the connection and kicks off the main loop
-	 */
-	public static void main(String[] args)
+	private ClientMain()
 	{
-		System.out.println("Starting...");
+		ownedPirateNames = new ArrayList<>();
 		Socket socket = new Socket();
 		try
 		{
@@ -82,9 +91,30 @@ public class ClientMain
 		{
 			e.printStackTrace();
 		}
-		main.connection = new Connection(socket);
+		connection = new Connection(socket);
 		System.out.println("Connected to " + socket.getInetAddress().getHostAddress() + ":" + socket.getPort()
 				+ "\n         from " + socket.getLocalSocketAddress().toString().substring(1));
+		gui = new ClientGUI();
+		planHistory = new HashMap<>();
+		planInProgress = new Order[8];
+	}
+
+	/*
+	 * The main method sets up the connection and kicks off the main loop
+	 */
+	public static void main(String[] args)
+	{
+		main = new ClientMain();
+		System.out.println("Starting...");
+
+		Plan[] asdf = new Plan[15];
+		asdf[1] = Plan.buildPlan(1, "ale", Order.BLOCK, Order.BLOCK, Order.BLOCK);
+		asdf[2] = Plan.buildPlan(2, "ale", Order.SLASH, Order.JUMP_DOWN, Order.REST);
+		asdf[3] = Plan.buildPlan(3, "ale", Order.PICK_UP_DAGGER, Order.THROW_CHAIR, Order.REST);
+		asdf[4] = Plan.buildPlan(4, "ale", Order.THROW_SWORD, Order.THROW_MUG, Order.THROW_DAGGER);
+		asdf[5] = Plan.buildPlan(5, "ale", Order.MOVE_FORWARD_LEFT, Order.MOVE_BACK_RIGHT, Order.MOVE_FORWARD_RIGHT);
+		main.planHistory.put("ale", asdf);
+
 		main.run();
 	}
 
@@ -124,16 +154,21 @@ public class ClientMain
 		{
 			Pirate pirate = ((InvalidPirateNamePacket) packet).getPirate();
 			gui.writeMessage("\"" + pirate.getName() + "\" is already taken. Please choose another pirate name.");
+			ownedPirateNames.remove(pirate.getName());
 			String newName = Utility.getValidName();
 			pirate.setName(newName);
+			ownedPirateNames.add(newName);
 			connection.write(new ResponsePacket<Pirate>(pirate));
 		}
 		else if (packet instanceof PirateAcceptedPacket)
 		{
-			Pirate pirate = ((PirateAcceptedPacket) packet).getPirate();
-			gui.writeMessage(pirate.getName() + " has joined the game.");
-			pirates.add(pirate);
-			planHistory.put(pirate.getName(), new Plan[ServerMain.MAX_TURNS]);
+			planHistory.put(((PirateAcceptedPacket) packet).getPirate().getName(), new Plan[ServerMain.MAX_TURNS]);
+		}
+		else if (packet instanceof PlanAcceptedPacket)
+		{
+			Plan plan = ((PlanAcceptedPacket) packet).getPlan();
+			planHistory.get(plan.getPirateName())[plan.getTurn()] = plan;
+			plannedPirateNames.add(plan.getPirateName());
 		}
 		else if (packet instanceof MessagePacket)
 		{
@@ -145,7 +180,9 @@ public class ClientMain
 		else if (packet instanceof NextTurnPacket)
 		{
 			currentTurn++;
+			plannedPirateNames = new ArrayList<>();
 			gui.writeMessage("=== Begin turn " + currentTurn + " ===");
+			gui.writeMessage("Plan your turn.");
 		}
 		else if (packet instanceof BoardPacket)
 		{
@@ -194,28 +231,43 @@ public class ClientMain
 			int rightArm = constitution - head - body - leftArm;
 			Pirate pirate = new Pirate(head, leftArm, rightArm, body, strength, endurance, constitution, expertise,
 					dexterity, name);
+			ownedPirateNames.add(name);
 			connection.write(new ResponsePacket<Pirate>(pirate));
-		}
-		else if (packet.type == Plan.class)
-		{
-			gui.writeMessage("Plan your turn.");
-			gui.keyboardInput.nextLine();
-			Plan plan = null;
-			do
-			{
-				// TODO: this is where the scanner/inout device takes in the
-				// plan.
-				plan = Plan.buildPlan(currentTurn, pirates.get(0).getName(), Order.BLOCK, Order.BLOCK,
-						Order.THROW_CHAIR);
-				// TODO: keep planning until all plans are made, sending each
-				// one in as it's made. When the last one comes back as
-				// validated, then it's done.
-			}
-			while (plan == null);
-			gui.writeMessage(plan.toString());
-			connection.write(new ResponsePacket<Plan>(plan));
 		}
 		else
 			Utility.typeError(packet.type);
+	}
+
+	/*
+	 * Called when the user submits the planned plan for the current turn for
+	 * the selected pirate.
+	 */
+	public void submitPlan()
+	{
+		String pirateName = gui.getSelectedPirate().getName();
+		// Plan plan = Plan.buildPlan(currentTurn, pirateName, );
+		// connection.write(new ResponsePacket<Plan>(plan));
+	}
+
+	/*
+	 * Updates the in-progress plan based on what was selected in a menu.
+	 */
+	public void updatePlanInProgress(int step, Order order)
+	{
+		if (planHistory.get(gui.getSelectedPirate().getName())[currentTurn - 1].getCarryOverRests() >= step)
+			return;
+		for (int i = 0; i < step - 1; i++)
+			if (planInProgress[i] != null && planInProgress[i].getRests() + i + 1 >= step)
+				return;
+		planInProgress[step - 1] = order;
+		for (int i = 0; i < order.getRests(); i++)
+			planInProgress[step + i] = Order.REST;
+		for (int i = step + order.getRests(); i < 8; i++)
+			planInProgress[i] = null;
+	}
+
+	public Order[] getPlanInProgress()
+	{
+		return planInProgress;
 	}
 }

@@ -3,7 +3,7 @@ package com.kovacs.swashbuckler;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import com.kovacs.swashbuckler.game.Board;
+import com.kovacs.swashbuckler.Menu.MenuType;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
@@ -55,9 +55,17 @@ public class MouseInput implements MouseMotionListener, MouseListener
 		}
 		else if (1001 <= mouseX && mouseX <= 1260 && 157 <= mouseY && mouseY <= 688)
 		{
-			int col = (mouseX - 999) / 44 + 1;
-			int row = (mouseY - 153) / 36 + 1;
-			System.out.println("col: " + col + " row: " + row);
+			int step = (mouseX - 999) / 44 + 1;
+			int turn = (mouseY - 153) / 36 + 1;
+			System.out.println("Clicked plot window turn " + turn + ", step " + step);
+			if (turn != ClientMain.main.currentTurn)
+				return;
+			ClientMain.main.gui.menu.setStep(step);
+			ClientMain.main.gui.menu.refresh(mouseX, mouseY, MenuType.PLOT);
+		}
+		else if (988 <= mouseX && mouseX <= 1112 && 64 <= mouseY && mouseY <= 96)
+		{
+			ClientMain.main.submitPlan();
 		}
 	}
 

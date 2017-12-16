@@ -14,6 +14,8 @@ import java.util.Queue;
 import javax.swing.JFrame;
 import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
+import com.kovacs.swashbuckler.game.Order;
+import com.kovacs.swashbuckler.game.Plan;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
 import com.kovacs.swashbuckler.game.entity.Pirate;
@@ -47,7 +49,8 @@ public class ClientGUI extends Canvas
 	 * Default colors for things. //TODO: these will probably go away
 	 * eventually.
 	 */
-	private static final Color backgroundColor = Color.BLACK, foregroundColor = new Color(0x666666);
+	private static final Color backgroundColor = Color.BLACK, foregroundColor = new Color(0x666666),
+			redTint = new Color(255, 0, 0, 100), greenTint = new Color(0, 255, 0, 100);
 
 	/*
 	 * A list of recent messages to display.
@@ -69,7 +72,7 @@ public class ClientGUI extends Canvas
 	/*
 	 * The main window of the gui.
 	 */
-	private JFrame frame;
+	public JFrame frame;
 
 	/*
 	 * The mouse input adapter.
@@ -96,6 +99,11 @@ public class ClientGUI extends Canvas
 	 * The thread that adds the characters to the output slowly.
 	 */
 	private Thread characterAdder;
+
+	/*
+	 * The thing that pops up when you click.
+	 */
+	public Menu menu;
 
 	/*
 	 * Keeps track of how big the window is.
@@ -140,6 +148,7 @@ public class ClientGUI extends Canvas
 		}.start();
 		resize(1);
 		startCharacterAdder();
+		menu = new Menu();
 	}
 
 	/*
@@ -147,6 +156,7 @@ public class ClientGUI extends Canvas
 	 */
 	public void draw()
 	{
+
 		BufferStrategy bs = getBufferStrategy();
 		if (bs == null)
 		{
@@ -205,13 +215,14 @@ public class ClientGUI extends Canvas
 	private void drawEvents(Graphics2D g)
 	{
 		g.setPaint(new GradientPaint(0, 0, backgroundColor, 0, 320, foregroundColor));
-		g.fillRect(8, 20, 328, (largeText?658:664));
+		g.fillRect(8, 20, 328, (largeText ? 658 : 664));
 		g.setColor(foregroundColor);
-		g.fillRect(8, (largeText?682:688), 328, (largeText?18:12));
+		g.fillRect(8, (largeText ? 682 : 688), 328, (largeText ? 18 : 12));
 		g.setColor(backgroundColor);
 		for (int i = 0; i < (largeText ? MAX_MESSAGES_LARGE : MAX_MESSAGES_SMALL); i++)
-			TextDrawer.drawText(g, messageHistory.get(i), 12, (largeText?18:24) + (largeText?14:8) * i, largeText ? 2 : 1);
-		TextDrawer.drawText(g, keyboardInput.keyboardInput, 12, largeText?686:692, largeText ? 2 : 1);
+			TextDrawer.drawText(g, messageHistory.get(i), 12, (largeText ? 18 : 24) + (largeText ? 14 : 8) * i,
+					largeText ? 2 : 1);
+		TextDrawer.drawText(g, keyboardInput.keyboardInput, 12, largeText ? 686 : 692, largeText ? 2 : 1);
 	}
 
 	/*
@@ -221,8 +232,16 @@ public class ClientGUI extends Canvas
 	{
 		if (selectedPirate == null)
 			return;
+		// draw background
 		g.setColor(foregroundColor);
 		g.fillRect(988, 104, 284, 596);
+		// tint future turns red
+		g.setColor(redTint);
+		g.fillRect(1000, 156 + ClientMain.main.currentTurn * 36, 260, 532 - ClientMain.main.currentTurn * 36);
+		// tint the current turn green
+		g.setColor(greenTint);
+		g.fillRect(1000, 120 + ClientMain.main.currentTurn * 36, 260, 28);
+		// draw all the boxes
 		g.setColor(backgroundColor);
 		for (int i = 0; i < 7; i++)
 			g.fillRect(996 + i * 44, 112, 4, 580);
@@ -233,6 +252,36 @@ public class ClientGUI extends Canvas
 			g.drawRect(1000 + i * 44, 116, 40, 36);
 		for (int i = 1; i <= 6; i++)
 			TextDrawer.drawText(g, "" + i, 1010 + (i - 1) * 44, 124, 4);
+		// fill in the plan history
+		for (int turn = 0; turn < ServerMain.MAX_TURNS; turn++)
+		{
+			Plan plan = ClientMain.main.planHistory.get(selectedPirate.getName())[turn];
+			if (plan == null)
+				continue;
+			for (int i = 0; i < plan.getOrders().length; i++)
+				TextDrawer.drawText(g, plan.getOrders()[i].getAbbreviation(), 1003 + i * 44, 128 + 36 * turn, 2);
+		}
+		// draw the current turn's plan
+		for (int i = 0; i < 6; i++)
+		{
+			Order plannedOrder = ClientMain.main.getPlanInProgress()[i];
+			if (plannedOrder != null)
+				TextDrawer.drawText(g, plannedOrder.getAbbreviation(), 1003 + i * 44,
+						128 + 36 * ClientMain.main.currentTurn, 2);
+		}
+		// draw the carry-overs in planning
+		for (int i = 0; i < 2; i++)
+		{
+			Order plannedCarryOver = ClientMain.main.getPlanInProgress()[6 + i];
+			if (plannedCarryOver != null)
+				TextDrawer.drawText(g, plannedCarryOver.getAbbreviation(), 1003 + i * 44,
+						128 + 36 * (ClientMain.main.currentTurn + 1), 2);
+		}
+		// draw the submit button
+		g.setColor(foregroundColor);
+		g.fillRect(988, 64, 124, 32);
+		g.setColor(backgroundColor);
+		TextDrawer.drawText(g, "Submit", 998, 72, 3);
 	}
 
 	/*
@@ -355,6 +404,11 @@ public class ClientGUI extends Canvas
 	{
 		selectedPirate = null;
 		// TODO: more might go here.
+	}
+
+	public Pirate getSelectedPirate()
+	{
+		return selectedPirate;
 	}
 
 	public double getScale()

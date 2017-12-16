@@ -394,6 +394,10 @@ public class TextDrawer
 				fillRectangle(narrowChar, 2, 3, 2, 1);// middle bottom
 				fillRectangle(narrowChar, 3, 0, 1, 3);// middle right
 				break;
+			case '"':
+				fillRectangle(narrowChar, 1, 0, 1, 3);//left
+				fillRectangle(narrowChar, 3, 0, 1, 3);//right
+				break;
 			default:
 				System.err.println("INVALID LETTER! -- " + letter);
 				System.exit(0);
