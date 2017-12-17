@@ -35,6 +35,10 @@ public class KeyboardInput implements KeyListener
 		}
 		else if (Utility.isPrintableCharacter(e.getKeyChar()))
 		{
+			// TODO: get rid of this./////////////
+			if (e.getKeyCode() == KeyEvent.VK_0)//
+				ClientMain.main.currentTurn++;////
+			// TODO: get rid of this./////////////
 			if (keyboardInput.length() < MAX_INPUT_LENGTH)
 				keyboardInput += e.getKeyChar();
 		}

@@ -5,7 +5,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.Order;
 import com.kovacs.swashbuckler.game.Plan;
@@ -108,11 +110,12 @@ public class ClientMain
 		System.out.println("Starting...");
 
 		Plan[] asdf = new Plan[15];
-		asdf[1] = Plan.buildPlan(1, "ale", Order.BLOCK, Order.BLOCK, Order.BLOCK);
-		asdf[2] = Plan.buildPlan(2, "ale", Order.SLASH, Order.JUMP_DOWN, Order.REST);
-		asdf[3] = Plan.buildPlan(3, "ale", Order.PICK_UP_DAGGER, Order.THROW_CHAIR, Order.REST);
-		asdf[4] = Plan.buildPlan(4, "ale", Order.THROW_SWORD, Order.THROW_MUG, Order.THROW_DAGGER);
-		asdf[5] = Plan.buildPlan(5, "ale", Order.MOVE_FORWARD_LEFT, Order.MOVE_BACK_RIGHT, Order.MOVE_FORWARD_RIGHT);
+		asdf[1] = Plan.expandAndBuildPlan(1, "ale", Order.BLOCK, Order.BLOCK, Order.BLOCK);
+		asdf[2] = Plan.expandAndBuildPlan(2, "ale", Order.SLASH, Order.JUMP_DOWN, Order.REST);
+		asdf[3] = Plan.expandAndBuildPlan(3, "ale", Order.PICK_UP_DAGGER, Order.THROW_CHAIR, Order.REST);
+		asdf[4] = Plan.expandAndBuildPlan(4, "ale", Order.THROW_SWORD, Order.THROW_MUG, Order.THROW_DAGGER);
+		asdf[5] = Plan.expandAndBuildPlan(5, "ale", Order.MOVE_FORWARD_LEFT, Order.MOVE_BACK_RIGHT,
+				Order.MOVE_FORWARD_RIGHT);
 		main.planHistory.put("ale", asdf);
 
 		main.run();
@@ -245,8 +248,14 @@ public class ClientMain
 	public void submitPlan()
 	{
 		String pirateName = gui.getSelectedPirate().getName();
-		// Plan plan = Plan.buildPlan(currentTurn, pirateName, );
-		// connection.write(new ResponsePacket<Plan>(plan));
+		Plan plan = Plan.buildPlan(currentTurn, pirateName, new ArrayList<>(Arrays.asList(planInProgress)).stream()
+				.filter(o -> o != null).collect(Collectors.toList()));
+		if (plan == null)
+		{
+			System.out.println("hul");
+			return;
+		}
+		connection.write(new ResponsePacket<Plan>(plan));
 	}
 
 	/*
@@ -254,7 +263,8 @@ public class ClientMain
 	 */
 	public void updatePlanInProgress(int step, Order order)
 	{
-		if (planHistory.get(gui.getSelectedPirate().getName())[currentTurn - 1].getCarryOverRests() >= step)
+		if (currentTurn != 1
+				&& planHistory.get(gui.getSelectedPirate().getName())[currentTurn - 1].getCarryOverRests() >= step)
 			return;
 		for (int i = 0; i < step - 1; i++)
 			if (planInProgress[i] != null && planInProgress[i].getRests() + i + 1 >= step)

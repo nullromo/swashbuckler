@@ -77,12 +77,12 @@ public class ClientGUI extends Canvas
 	/*
 	 * The mouse input adapter.
 	 */
-	private MouseInput mouseInput = new MouseInput();
+	private MouseInput mouseInput;
 
 	/*
 	 * The keyboard input adapter.
 	 */
-	public KeyboardInput keyboardInput = new KeyboardInput();
+	public KeyboardInput keyboardInput;
 
 	/*
 	 * An instance of a board that is given to the client by the server on board
@@ -124,6 +124,8 @@ public class ClientGUI extends Canvas
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+		keyboardInput = new KeyboardInput();
+		mouseInput = new MouseInput();
 		addMouseListener(mouseInput);
 		addMouseMotionListener(mouseInput);
 		addKeyListener(keyboardInput);
@@ -230,6 +232,8 @@ public class ClientGUI extends Canvas
 	 */
 	private void drawPlanHistory(Graphics g)
 	{
+		// TODO: only draw the clickable stuff and only alow clicks if the game
+		// is ready for that type of click.
 		if (selectedPirate == null)
 			return;
 		// draw background

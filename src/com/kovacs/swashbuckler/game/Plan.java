@@ -2,6 +2,7 @@ package com.kovacs.swashbuckler.game;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import com.kovacs.swashbuckler.ServerMain;
 
 /*
@@ -33,16 +34,17 @@ public class Plan implements Serializable
 	private Order[] orders;
 
 	/*
-	 * Builds a plan out of the given set of orders. If the plan is not valid,
-	 * returns null. This method does not guarantee that the plan is valid given
-	 * the current game state, only that it is generally valid under no
-	 * assumptions.
+	 * Builds a plan out of the given set of orders. The orders do not include
+	 * mandatory rests. Rests are expanded before the plan is validated. If the
+	 * plan is not valid, returns null. This method does not guarantee that the
+	 * plan is valid given the current game state, only that it is generally
+	 * valid under no assumptions.
 	 */
 	// TODO: it is the server's job to determine illegal actions based on
 	// character state and validate plans against these conditions. The client
 	// should be warned and asked to resubmit their plan in any case where the
 	// pre-resolution plan is invalid.
-	public static Plan buildPlan(int turn, String pirateName, Order... orders)
+	public static Plan expandAndBuildPlan(int turn, String pirateName, Order... orders)
 	{
 		ArrayList<Order> expandedPlan = new ArrayList<>();
 		for (Order order : orders)
@@ -51,6 +53,16 @@ public class Plan implements Serializable
 			for (int i = 0; i < order.getRests(); i++)
 				expandedPlan.add(Order.REST);
 		}
+		return buildPlan(turn, pirateName, expandedPlan);
+	}
+
+	/*
+	 * Builds a new plan out of orders that already include mandatory rests.
+	 * Same as expandAndBuildPlan, but with the rests already included.
+	 */
+	public static Plan buildPlan(int turn, String pirateName, List<Order> expandedPlan)
+	{
+		System.out.println(expandedPlan.size());
 		if (expandedPlan.size() < 6)
 			return null;
 		int carryOverRests = 0;
