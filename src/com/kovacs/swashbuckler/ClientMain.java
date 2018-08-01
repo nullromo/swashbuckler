@@ -91,7 +91,6 @@ public class ClientMain
 		connection = new Connection(socket);
 		System.out.println("Connected to " + socket.getInetAddress().getHostAddress() + ":" + socket.getPort()
 				+ "\n         from " + socket.getLocalSocketAddress().toString().substring(1));
-		gui = new ClientGUI();
 		planHistory = new HashMap<>();
 	}
 
@@ -101,6 +100,7 @@ public class ClientMain
 	public static void main(String[] args)
 	{
 		main = new ClientMain();
+		main.gui = new ClientGUI();
 		System.out.println("Starting...");
 		main.run();
 	}
@@ -249,6 +249,15 @@ public class ClientMain
 			gui.writeMessage("You must submit a valid plan. All steps must be filled out.");
 			return;
 		}
+		int restsCarriedOver = planHistory.get(pirateName)[currentTurn - 1].getCarryOverRests();
+		for (int i = 0; i < restsCarriedOver; i++)
+			if (plannedOrders.get(i) != Order.REST)
+			{
+				gui.writeMessage("Plan must start with " + restsCarriedOver + " required step"
+						+ (restsCarriedOver == 1 ? "" : "s") + " of rest carried over from last turn.");
+				System.err.println("This code should never have executed.");
+				return;
+			}
 		connection.write(new ResponsePacket<Plan>(plan));
 	}
 
@@ -309,7 +318,7 @@ public class ClientMain
 
 	public Plan getPlanInProgress()
 	{
-		if(selectedPirate == null)
+		if (selectedPirate == null)
 			return null;
 		return planHistory.get(selectedPirate.getName())[currentTurn];
 	}

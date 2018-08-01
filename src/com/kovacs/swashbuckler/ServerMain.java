@@ -231,21 +231,11 @@ public class ServerMain
 		else if (packet.getType() == Plan.class)
 		{
 			Plan plan = (Plan) packet.getObject();
-			String errorMessage = isPlanInvalid(plan);
-			if (errorMessage == null)
-			{
-				plan.lock();
-				addPlan(plan);
-				packet.getConnection().write(new MessagePacket("Planned [" + plan + "] for " + plan.getPirateName()));
-				packet.getConnection().write(new PlanAcceptedPacket(plan));
-				checkPlanningDone();
-			}
-			else
-			{
-				packet.getConnection()
-						.write(new MessagePacket("Invalid plan for " + plan.getPirateName() + ": " + errorMessage));
-				packet.getConnection().write(new RequestPacket(Plan.class));
-			}
+			plan.lock();
+			addPlan(plan);
+			packet.getConnection().write(new MessagePacket("Planned [" + plan + "] for " + plan.getPirateName()));
+			packet.getConnection().write(new PlanAcceptedPacket(plan));
+			checkPlanningDone();
 		}
 		else
 			Utility.typeError(packet.getType());
@@ -266,19 +256,6 @@ public class ServerMain
 			pirateHistory[plan.getTurn() + 1] = Plan.expandAndBuildPlan(plan.getTurn() + 1, plan.getPirateName(),
 					carryOver);
 		}
-	}
-
-	/*
-	 * Returns null if the plan is okay and an error message if it isn't.
-	 */
-	private String isPlanInvalid(Plan plan)
-	{
-		int restsCarriedOver = planHistory.get(plan.getPirateName())[plan.getTurn()-1].getCarryOverRests();
-		for (int i = 0; i < restsCarriedOver; i++)
-			if (plan.getOrders()[i] != Order.REST)
-				return "Plan must start with " + restsCarriedOver + " required step"
-						+ (restsCarriedOver == 1 ? "" : "s") + " of rest carried over from last turn.";
-		return null;
 	}
 
 	/*
@@ -334,7 +311,8 @@ public class ServerMain
 			}
 		}
 		System.out.println("All pirates planned. Moving to resolution.");
-		//TODO: resolution.
+		//TODO: look into if this is the best way to actually do this or not.
+		board = new ResolutionHandler(board, planHistory, currentTurn).resolve();
 		writeAll(new NextTurnPacket());
 		currentTurn++;
 		// writeAll(new RequestPacket(Plan.class));

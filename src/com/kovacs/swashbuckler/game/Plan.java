@@ -57,7 +57,8 @@ public class Plan implements Serializable
 	// TODO: it is the server's job to determine illegal actions based on
 	// character state and validate plans against these conditions. The client
 	// should be warned and asked to resubmit their plan in any case where the
-	// pre-resolution plan is invalid. This is for security reasons.
+	// pre-resolution plan is invalid. This is for security reasons. In other
+	// words, if somebody is trying to cheat, the server should recognize this.
 	public static Plan expandAndBuildPlan(int turn, String pirateName, Order... orders)
 	{
 		ArrayList<Order> expandedPlan = new ArrayList<>();
