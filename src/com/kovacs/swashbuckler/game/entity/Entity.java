@@ -8,7 +8,7 @@ import com.kovacs.swashbuckler.Utility.Direction;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
 
 /*
- * This class represents an objct on the game board.
+ * This class represents an object on the game board.
  */
 public class Entity implements Serializable
 {

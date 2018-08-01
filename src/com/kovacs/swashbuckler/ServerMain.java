@@ -32,6 +32,8 @@ import com.kovacs.swashbuckler.packets.ResponsePacket;
 // TODO: split this class into smaller ones.
 public class ServerMain
 {
+	// TODO: make a configurable GUI for starting the server, so that the server
+	// runner can decide how many pirates, etc.
 	/*
 	 * The number of players in a game.
 	 */
@@ -71,7 +73,12 @@ public class ServerMain
 	 * Holds all plans for all pirates. Maps pirate names to arrays of their
 	 * plans.
 	 */
-	private HashMap<String, Order[][]> planHistory;
+	private HashMap<String, Plan[]> planHistory;
+
+	/*
+	 * Keeps track of the current game turn.
+	 */
+	private int currentTurn;
 
 	/*
 	 * The thread that accepts clients.
@@ -109,16 +116,13 @@ public class ServerMain
 				try
 				{
 					serverSocket = new ServerSocket(8004);
-					while (true)
+					while (acceptingClients)
 					{
-						if (acceptingClients)
-						{
-							gui.write("Waiting for connections...");
-							Socket s = serverSocket.accept();
-							gui.write("A client has connected from " + s.getInetAddress().getHostAddress() + ":"
-									+ s.getPort());
-							connections.add(new Connection(s));
-						}
+						gui.write("Waiting for connections...");
+						Socket s = serverSocket.accept();
+						gui.write("A client has connected from " + s.getInetAddress().getHostAddress() + ":"
+								+ s.getPort());
+						connections.add(new Connection(s));
 					}
 				}
 				catch (IOException e)
@@ -128,7 +132,7 @@ public class ServerMain
 			}
 		};
 	}
-	
+
 	/*
 	 * The program starts off by launching a client-accepting thread and a
 	 * response-accepting thread, and then running the run method.
@@ -230,6 +234,7 @@ public class ServerMain
 			String errorMessage = isPlanInvalid(plan);
 			if (errorMessage == null)
 			{
+				plan.lock();
 				addPlan(plan);
 				packet.getConnection().write(new MessagePacket("Planned [" + plan + "] for " + plan.getPirateName()));
 				packet.getConnection().write(new PlanAcceptedPacket(plan));
@@ -251,14 +256,15 @@ public class ServerMain
 	 */
 	private void addPlan(Plan plan)
 	{
-		Order[][] pirateHistory = planHistory.get(plan.getPirateName());
-		pirateHistory[plan.getTurn()] = plan.getOrders();
+		Plan[] pirateHistory = planHistory.get(plan.getPirateName());
+		pirateHistory[plan.getTurn()] = plan;
 		if (plan.getCarryOverRests() > 0)
 		{
-			Order[] carryOver = new Order[6];
+			Order[] carryOver = new Order[plan.getCarryOverRests()];
 			for (int i = 0; i < plan.getCarryOverRests(); i++)
 				carryOver[i] = Order.REST;
-			pirateHistory[plan.getTurn() + 1] = carryOver;
+			pirateHistory[plan.getTurn() + 1] = Plan.expandAndBuildPlan(plan.getTurn() + 1, plan.getPirateName(),
+					carryOver);
 		}
 	}
 
@@ -267,14 +273,7 @@ public class ServerMain
 	 */
 	private String isPlanInvalid(Plan plan)
 	{
-		int restsCarriedOver = 0;
-		for (Order order : planHistory.get(plan.getPirateName())[plan.getTurn()])
-			if (order == Order.REST)
-				restsCarriedOver++;
-			else if (order != null)
-				throw new RuntimeException("Non-rest order carried over. This should never have happened.");
-			else
-				break;
+		int restsCarriedOver = planHistory.get(plan.getPirateName())[plan.getTurn()-1].getCarryOverRests();
 		for (int i = 0; i < restsCarriedOver; i++)
 			if (plan.getOrders()[i] != Order.REST)
 				return "Plan must start with " + restsCarriedOver + " required step"
@@ -299,7 +298,10 @@ public class ServerMain
 		board.add(pirate);
 		writeAll(new MessagePacket(pirate.getName() + " has joined the game."));
 		writeAll(new BoardPacket(board));
-		planHistory.put(pirate.getName(), new Order[MAX_TURNS][6]);
+		Plan[] emptyPlanHistory = new Plan[ServerMain.MAX_TURNS];
+		for (int i = 0; i < ServerMain.MAX_TURNS; i++)
+			emptyPlanHistory[i] = Plan.createUnplannedPlan(i);
+		planHistory.put(pirate.getName(), emptyPlanHistory);
 		gui.write(board);
 		System.out.println(board);
 		checkGameStart();
@@ -314,7 +316,7 @@ public class ServerMain
 		{
 			writeAll(new MessagePacket("All players are ready to begin."));
 			writeAll(new NextTurnPacket());
-			writeAll(new RequestPacket(Plan.class));
+			currentTurn = 1;
 		}
 	}
 
@@ -323,10 +325,19 @@ public class ServerMain
 	 */
 	private void checkPlanningDone()
 	{
-		// TODO: check it and start the resolution phase. Also want to have a
-		// currentTurn variable so the game knows what turn it's on.
+		for (Plan[] plans : planHistory.values())
+		{
+			if (!plans[currentTurn].isLocked())
+			{
+				System.out.println("Not all pirates have been planned.");
+				return;
+			}
+		}
+		System.out.println("All pirates planned. Moving to resolution.");
+		//TODO: resolution.
 		writeAll(new NextTurnPacket());
-		writeAll(new RequestPacket(Plan.class));
+		currentTurn++;
+		// writeAll(new RequestPacket(Plan.class));
 	}
 
 	/*

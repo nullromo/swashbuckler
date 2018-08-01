@@ -14,7 +14,6 @@ import java.util.Queue;
 import javax.swing.JFrame;
 import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
-import com.kovacs.swashbuckler.game.Order;
 import com.kovacs.swashbuckler.game.Plan;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
@@ -43,6 +42,7 @@ public class ClientGUI extends Canvas
 	/*
 	 * Keeps track of the text size setting.
 	 */
+	// TODO: make it so that the user can adjust this.
 	private static final boolean largeText = false;
 
 	/*
@@ -50,7 +50,8 @@ public class ClientGUI extends Canvas
 	 * eventually.
 	 */
 	private static final Color backgroundColor = Color.BLACK, foregroundColor = new Color(0x666666),
-			redTint = new Color(255, 0, 0, 100), greenTint = new Color(0, 255, 0, 100);
+			redTint = new Color(255, 0, 0, 100), greenTint = new Color(0, 255, 0, 100),
+			yellowTint = new Color(255, 255, 0, 100);
 
 	/*
 	 * A list of recent messages to display.
@@ -91,11 +92,6 @@ public class ClientGUI extends Canvas
 	public Board board;
 
 	/*
-	 * The current pirate that is selected for planning.
-	 */
-	private Pirate selectedPirate;
-
-	/*
 	 * The thread that adds the characters to the output slowly.
 	 */
 	private Thread characterAdder;
@@ -124,11 +120,6 @@ public class ClientGUI extends Canvas
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		keyboardInput = new KeyboardInput();
-		mouseInput = new MouseInput();
-		addMouseListener(mouseInput);
-		addMouseMotionListener(mouseInput);
-		addKeyListener(keyboardInput);
 		new Thread()
 		{
 			@Override
@@ -151,6 +142,11 @@ public class ClientGUI extends Canvas
 		resize(1);
 		startCharacterAdder();
 		menu = new Menu();
+		keyboardInput = new KeyboardInput();
+		mouseInput = new MouseInput();
+		addMouseListener(mouseInput);
+		addMouseMotionListener(mouseInput);
+		addKeyListener(keyboardInput);
 	}
 
 	/*
@@ -232,18 +228,27 @@ public class ClientGUI extends Canvas
 	 */
 	private void drawPlanHistory(Graphics g)
 	{
-		// TODO: only draw the clickable stuff and only alow clicks if the game
+		// TODO: only draw the clickable stuff and only allow clicks if the game
 		// is ready for that type of click.
-		if (selectedPirate == null)
+		if (ClientMain.main.getSelectedPirate() == null)
 			return;
+		// TODO: decide on and standardize how everyone knows what pirates exist
+		// and where their plan histories are stored.
+		if (!ClientMain.main.getOwnedPirateNames().contains(ClientMain.main.getSelectedPirate().getName()))
+			return;
+		// TODO: control access to things so that I don't have to keep typing
+		// ClientMain.main.gui and such
 		// draw background
 		g.setColor(foregroundColor);
 		g.fillRect(988, 104, 284, 596);
 		// tint future turns red
 		g.setColor(redTint);
 		g.fillRect(1000, 156 + ClientMain.main.currentTurn * 36, 260, 532 - ClientMain.main.currentTurn * 36);
-		// tint the current turn green
-		g.setColor(greenTint);
+		// tint the current turn
+		if (ClientMain.main.getPlanInProgress().isLocked())
+			g.setColor(greenTint);
+		else
+			g.setColor(yellowTint);
 		g.fillRect(1000, 120 + ClientMain.main.currentTurn * 36, 260, 28);
 		// draw all the boxes
 		g.setColor(backgroundColor);
@@ -259,27 +264,13 @@ public class ClientGUI extends Canvas
 		// fill in the plan history
 		for (int turn = 0; turn < ServerMain.MAX_TURNS; turn++)
 		{
-			Plan plan = ClientMain.main.planHistory.get(selectedPirate.getName())[turn];
+			if (ClientMain.main.getSelectedPirate() == null)
+				return;
+			Plan plan = ClientMain.main.planHistory.get(ClientMain.main.getSelectedPirate().getName())[turn];
 			if (plan == null)
 				continue;
 			for (int i = 0; i < plan.getOrders().length; i++)
 				TextDrawer.drawText(g, plan.getOrders()[i].getAbbreviation(), 1003 + i * 44, 128 + 36 * turn, 2);
-		}
-		// draw the current turn's plan
-		for (int i = 0; i < 6; i++)
-		{
-			Order plannedOrder = ClientMain.main.getPlanInProgress()[i];
-			if (plannedOrder != null)
-				TextDrawer.drawText(g, plannedOrder.getAbbreviation(), 1003 + i * 44,
-						128 + 36 * ClientMain.main.currentTurn, 2);
-		}
-		// draw the carry-overs in planning
-		for (int i = 0; i < 2; i++)
-		{
-			Order plannedCarryOver = ClientMain.main.getPlanInProgress()[6 + i];
-			if (plannedCarryOver != null)
-				TextDrawer.drawText(g, plannedCarryOver.getAbbreviation(), 1003 + i * 44,
-						128 + 36 * (ClientMain.main.currentTurn + 1), 2);
 		}
 		// draw the submit button
 		g.setColor(foregroundColor);
@@ -305,7 +296,7 @@ public class ClientGUI extends Canvas
 					g.drawImage(((Table) entity).getDrawImage(coordinate), xDrawPosition, yDrawPosition, 42, 42, null);
 				else if (entity.type == EntityType.SHELF)
 					g.drawImage(((Shelf) entity).getDrawImage(coordinate), xDrawPosition, yDrawPosition, 42, 42, null);
-				else if (entity.type == EntityType.PIRATE && selectedPirate == (Pirate) entity)
+				else if (entity.type == EntityType.PIRATE && ClientMain.main.getSelectedPirate() == (Pirate) entity)
 				{
 					((Graphics2D) g).setStroke(new BasicStroke(2));
 					g.setColor(Color.YELLOW);
@@ -389,30 +380,6 @@ public class ClientGUI extends Canvas
 			}
 		};
 		characterAdder.start();
-	}
-
-	/*
-	 * Selects a pirate and does all associated things. Called when a player
-	 * clicks on a pirate.
-	 */
-	public void selectPirate(Pirate pirate)
-	{
-		selectedPirate = pirate;
-		// TODO: more goes here probably.
-	}
-
-	/*
-	 * Un-selects the currently selected pirate.
-	 */
-	public void deselectPirate()
-	{
-		selectedPirate = null;
-		// TODO: more might go here.
-	}
-
-	public Pirate getSelectedPirate()
-	{
-		return selectedPirate;
 	}
 
 	public double getScale()

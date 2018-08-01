@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.Order;
@@ -45,18 +46,12 @@ public class ClientMain
 	 * Holds the value that tells what turn the game is on (1-MAX_TURNS).
 	 */
 	// TODO: this should increment at the end of each turn.
-	public int currentTurn = 1;
+	public int currentTurn = 0;
 
 	/*
 	 * Holds a list of the pirate names that this client controls.
 	 */
 	private ArrayList<String> ownedPirateNames;
-
-	/*
-	 * Keeps track of which pirates still need their plans. Resets to an empty
-	 * list every new turn.
-	 */
-	private ArrayList<String> plannedPirateNames;
 
 	/*
 	 * Holds the history of each pirate's plans. Maps pirate names to arrays of
@@ -65,9 +60,9 @@ public class ClientMain
 	public HashMap<String, Plan[]> planHistory;
 
 	/*
-	 * Keeps track of the plans that are about to be submitted.
+	 * The current pirate that is selected for planning.
 	 */
-	private Order[] planInProgress;
+	private Pirate selectedPirate;
 
 	/*
 	 * The gui for the client
@@ -98,7 +93,6 @@ public class ClientMain
 				+ "\n         from " + socket.getLocalSocketAddress().toString().substring(1));
 		gui = new ClientGUI();
 		planHistory = new HashMap<>();
-		planInProgress = new Order[8];
 	}
 
 	/*
@@ -108,16 +102,6 @@ public class ClientMain
 	{
 		main = new ClientMain();
 		System.out.println("Starting...");
-
-		Plan[] asdf = new Plan[15];
-		asdf[1] = Plan.expandAndBuildPlan(1, "ale", Order.BLOCK, Order.BLOCK, Order.BLOCK);
-		asdf[2] = Plan.expandAndBuildPlan(2, "ale", Order.SLASH, Order.JUMP_DOWN, Order.REST);
-		asdf[3] = Plan.expandAndBuildPlan(3, "ale", Order.PICK_UP_DAGGER, Order.THROW_CHAIR, Order.REST);
-		asdf[4] = Plan.expandAndBuildPlan(4, "ale", Order.THROW_SWORD, Order.THROW_MUG, Order.THROW_DAGGER);
-		asdf[5] = Plan.expandAndBuildPlan(5, "ale", Order.MOVE_FORWARD_LEFT, Order.MOVE_BACK_RIGHT,
-				Order.MOVE_FORWARD_RIGHT);
-		main.planHistory.put("ale", asdf);
-
 		main.run();
 	}
 
@@ -165,13 +149,15 @@ public class ClientMain
 		}
 		else if (packet instanceof PirateAcceptedPacket)
 		{
-			planHistory.put(((PirateAcceptedPacket) packet).getPirate().getName(), new Plan[ServerMain.MAX_TURNS]);
+			Plan[] emptyPlanHistory = new Plan[ServerMain.MAX_TURNS];
+			for (int i = 0; i < ServerMain.MAX_TURNS; i++)
+				emptyPlanHistory[i] = Plan.createUnplannedPlan(i);
+			planHistory.put(((PirateAcceptedPacket) packet).getPirate().getName(), emptyPlanHistory);
 		}
 		else if (packet instanceof PlanAcceptedPacket)
 		{
 			Plan plan = ((PlanAcceptedPacket) packet).getPlan();
 			planHistory.get(plan.getPirateName())[plan.getTurn()] = plan;
-			plannedPirateNames.add(plan.getPirateName());
 		}
 		else if (packet instanceof MessagePacket)
 		{
@@ -183,7 +169,6 @@ public class ClientMain
 		else if (packet instanceof NextTurnPacket)
 		{
 			currentTurn++;
-			plannedPirateNames = new ArrayList<>();
 			gui.writeMessage("=== Begin turn " + currentTurn + " ===");
 			gui.writeMessage("Plan your turn.");
 		}
@@ -199,6 +184,7 @@ public class ClientMain
 	/*
 	 * Handles requests for objects that have been made by the server.
 	 */
+	// TODO: (long-term) make the pirate creation into a gui pop-up
 	private void handleRequestPacket(RequestPacket packet)
 	{
 		if (packet.type == Pirate.class)
@@ -220,7 +206,7 @@ public class ClientMain
 			gui.writeMessage(name + "'s expertise is " + expertise);
 			gui.writeMessage(name + " is " + dexterity);
 			gui.writeMessage("You may now distribute " + name
-					+ "'s constitution points among his/her body parts (head, body, right arm, left arm). Each part requires at least 1 point.");
+					+ "'s constitution points among their body parts (head, body, right arm, left arm). Each part requires at least 1 point.");
 			gui.writeMessage("Enter the number of constituion points to assign to " + name + "'s head. (up to "
 					+ (constitution - 3) + ").");
 			int head = Utility.getInt(constitution - 3);
@@ -237,6 +223,11 @@ public class ClientMain
 			ownedPirateNames.add(name);
 			connection.write(new ResponsePacket<Pirate>(pirate));
 		}
+		else if (packet.type == Plan.class)
+		{
+			throw new RuntimeException(
+					"Need to figure out how the server requests specific plans when an invalid one is submitted.");
+		}
 		else
 			Utility.typeError(packet.type);
 	}
@@ -247,12 +238,15 @@ public class ClientMain
 	 */
 	public void submitPlan()
 	{
-		String pirateName = gui.getSelectedPirate().getName();
-		Plan plan = Plan.buildPlan(currentTurn, pirateName, new ArrayList<>(Arrays.asList(planInProgress)).stream()
-				.filter(o -> o != null).collect(Collectors.toList()));
+		String pirateName = selectedPirate.getName();
+		List<Order> plannedOrders = new ArrayList<>(Arrays.asList(getPlanInProgress().getOrders())).stream()
+				.filter(o -> o != null && o != Order.UNPLANNED).collect(Collectors.toList());
+		for (int i = 0; i < getPlanInProgress().getCarryOverRests(); i++)
+			plannedOrders.add(Order.REST);
+		Plan plan = Plan.buildPlan(currentTurn, pirateName, plannedOrders);
 		if (plan == null)
 		{
-			System.out.println("hul");
+			gui.writeMessage("You must submit a valid plan. All steps must be filled out.");
 			return;
 		}
 		connection.write(new ResponsePacket<Plan>(plan));
@@ -263,21 +257,70 @@ public class ClientMain
 	 */
 	public void updatePlanInProgress(int step, Order order)
 	{
-		if (currentTurn != 1
-				&& planHistory.get(gui.getSelectedPirate().getName())[currentTurn - 1].getCarryOverRests() >= step)
+		// don't allow changing of carry-over rests
+		if (currentTurn != 1 && planHistory.get(selectedPirate.getName())[currentTurn - 1].getCarryOverRests() >= step)
 			return;
+		Order[] ordersInProgress = getPlanInProgress().getOrders();
+		// don't allow changing of previously planned orders' required rest
 		for (int i = 0; i < step - 1; i++)
-			if (planInProgress[i] != null && planInProgress[i].getRests() + i + 1 >= step)
+			if (ordersInProgress[i] != null && ordersInProgress[i].getRests() + i + 1 >= step)
 				return;
-		planInProgress[step - 1] = order;
+		// assign the desired order to the orders in progress
+		ordersInProgress[step - 1] = order;
+		// erase everything after the desired order
+		for (int i = step + order.getRests(); i < 6; i++)
+			ordersInProgress[i] = Order.UNPLANNED;
+		planHistory.get(selectedPirate.getName())[currentTurn + 1] = Plan.createUnplannedPlan(currentTurn + 1);
+		getPlanInProgress().resetCarryOverRests();
+		// assign required rest steps for the desired order
 		for (int i = 0; i < order.getRests(); i++)
-			planInProgress[step + i] = Order.REST;
-		for (int i = step + order.getRests(); i < 8; i++)
-			planInProgress[i] = null;
+		{
+			try
+			{
+				ordersInProgress[step + i] = Order.REST;
+			}
+			catch (ArrayIndexOutOfBoundsException e)
+			{
+				getPlanInProgress().addCarryOverRest();
+				planHistory.get(selectedPirate.getName())[currentTurn + 1].getOrders()[i + step - 6] = Order.REST;
+			}
+		}
 	}
 
-	public Order[] getPlanInProgress()
+	/*
+	 * Selects a pirate and does all associated things. Called when a player
+	 * clicks on a pirate.
+	 */
+	public void selectPirate(Pirate pirate)
 	{
-		return planInProgress;
+		if (ownedPirateNames.contains(pirate.getName()))
+			selectedPirate = pirate;
+		// TODO: more goes here probably.
+	}
+
+	/*
+	 * Un-selects the currently selected pirate.
+	 */
+	public void deselectPirate()
+	{
+		selectedPirate = null;
+		// TODO: more might go here.
+	}
+
+	public Plan getPlanInProgress()
+	{
+		if(selectedPirate == null)
+			return null;
+		return planHistory.get(selectedPirate.getName())[currentTurn];
+	}
+
+	public ArrayList<String> getOwnedPirateNames()
+	{
+		return ownedPirateNames;
+	}
+
+	public Pirate getSelectedPirate()
+	{
+		return selectedPirate;
 	}
 }

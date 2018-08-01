@@ -34,6 +34,20 @@ public class Plan implements Serializable
 	private Order[] orders;
 
 	/*
+	 * Tells whether the plan has been submitted and accepted by the server
+	 */
+	private boolean locked = false;
+
+	/*
+	 * Generates an unplanned plan. Used for initializing plan histories.
+	 */
+	public static Plan createUnplannedPlan(int turn)
+	{
+		return expandAndBuildPlan(turn, "", Order.UNPLANNED, Order.UNPLANNED, Order.UNPLANNED, Order.UNPLANNED,
+				Order.UNPLANNED, Order.UNPLANNED);
+	}
+
+	/*
 	 * Builds a plan out of the given set of orders. The orders do not include
 	 * mandatory rests. Rests are expanded before the plan is validated. If the
 	 * plan is not valid, returns null. This method does not guarantee that the
@@ -43,7 +57,7 @@ public class Plan implements Serializable
 	// TODO: it is the server's job to determine illegal actions based on
 	// character state and validate plans against these conditions. The client
 	// should be warned and asked to resubmit their plan in any case where the
-	// pre-resolution plan is invalid.
+	// pre-resolution plan is invalid. This is for security reasons.
 	public static Plan expandAndBuildPlan(int turn, String pirateName, Order... orders)
 	{
 		ArrayList<Order> expandedPlan = new ArrayList<>();
@@ -62,7 +76,6 @@ public class Plan implements Serializable
 	 */
 	public static Plan buildPlan(int turn, String pirateName, List<Order> expandedPlan)
 	{
-		System.out.println(expandedPlan.size());
 		if (expandedPlan.size() < 6)
 			return null;
 		int carryOverRests = 0;
@@ -110,6 +123,16 @@ public class Plan implements Serializable
 		return carryOverRests;
 	}
 
+	public void addCarryOverRest()
+	{
+		carryOverRests++;
+	}
+
+	public void resetCarryOverRests()
+	{
+		carryOverRests = 0;
+	}
+
 	public int getTurn()
 	{
 		return turn;
@@ -118,5 +141,15 @@ public class Plan implements Serializable
 	public Order[] getOrders()
 	{
 		return orders;
+	}
+
+	public void lock()
+	{
+		locked = true;
+	}
+
+	public boolean isLocked()
+	{
+		return locked;
 	}
 }

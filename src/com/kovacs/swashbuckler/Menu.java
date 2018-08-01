@@ -104,10 +104,18 @@ public class Menu extends JWindow implements ItemListener
 	}
 
 	/*
-	 * Sets the variables for the square that this menu is talking about.
+	 * Sets the variables for the plot square that this menu is talking about.
 	 */
 	public void setStep(int step)
 	{
 		this.step = step;
+	}
+	
+	/*
+	 * Makes the menu not visible so that it goes away
+	 */
+	public void close()
+	{
+		setVisible(false);
 	}
 }

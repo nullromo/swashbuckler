@@ -6,7 +6,7 @@ package com.kovacs.swashbuckler.game;
 public enum Order
 {
 	/*
-	 * These are lists of all the possible orders that pirates can be given.
+	 * These are all the possible orders that pirates can be given.
 	 */
 	// @formatter:off
 	THROW_DAGGER("Throw Dagger", "wd", 1, OrderType.ACTION), 
@@ -49,7 +49,8 @@ public enum Order
 	SWING_2("Swing 2", "g2", 2, OrderType.MOVEMENT),
 	SWING_3("Swing 3", "g3", 2, OrderType.MOVEMENT),
 	SWING_4("Swing 4", "g4", 2, OrderType.MOVEMENT),
-	SWING_5("Swing 5", "g5", 2, OrderType.MOVEMENT);
+	SWING_5("Swing 5", "g5", 2, OrderType.MOVEMENT),
+	UNPLANNED("*", "", 0, OrderType.NONE);
 	// @formatter:on
 
 	/*
