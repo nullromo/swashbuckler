@@ -3,7 +3,7 @@ package com.kovacs.swashbuckler.game;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import com.kovacs.swashbuckler.ServerMain;
+import com.kovacs.swashbuckler3.Engine;
 
 /*
  * This data object represents a single turn for a single pirate.
@@ -94,7 +94,7 @@ public class Plan implements Serializable
 		Order[] builtPlan = new Order[6];
 		for (int i = 0; i < expandedPlan.size(); i++)
 			builtPlan[i] = expandedPlan.get(i);
-		return new Plan(turn, pirateName, builtPlan, turn == ServerMain.MAX_TURNS ? 0 : carryOverRests);
+		return new Plan(turn, pirateName, builtPlan, turn == Engine.MAX_TURNS ? 0 : carryOverRests);
 	}
 
 	private Plan(int turn, String pirateName, Order[] orders, int carryOverRests)

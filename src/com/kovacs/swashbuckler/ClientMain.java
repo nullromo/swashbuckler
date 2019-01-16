@@ -24,6 +24,7 @@ import com.kovacs.swashbuckler.packets.PirateAcceptedPacket;
 import com.kovacs.swashbuckler.packets.PlanAcceptedPacket;
 import com.kovacs.swashbuckler.packets.RequestPacket;
 import com.kovacs.swashbuckler.packets.ResponsePacket;
+import com.kovacs.swashbuckler3.Engine;
 
 /*
  * This is the main class for the client-side application. It will respond to
@@ -149,8 +150,8 @@ public class ClientMain
 		}
 		else if (packet instanceof PirateAcceptedPacket)
 		{
-			Plan[] emptyPlanHistory = new Plan[ServerMain.MAX_TURNS];
-			for (int i = 0; i < ServerMain.MAX_TURNS; i++)
+			Plan[] emptyPlanHistory = new Plan[Engine.MAX_TURNS];
+			for (int i = 0; i < Engine.MAX_TURNS; i++)
 				emptyPlanHistory[i] = Plan.createUnplannedPlan(i);
 			planHistory.put(((PirateAcceptedPacket) packet).getPirate().getName(), emptyPlanHistory);
 		}

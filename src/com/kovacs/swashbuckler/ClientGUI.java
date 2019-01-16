@@ -20,6 +20,7 @@ import com.kovacs.swashbuckler.game.entity.Entity.EntityType;
 import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.game.entity.Shelf;
 import com.kovacs.swashbuckler.game.entity.Table;
+import com.kovacs.swashbuckler3.Engine;
 
 /*
  * The class that controls graphical interactions on the client side.
@@ -262,7 +263,7 @@ public class ClientGUI extends Canvas
 		for (int i = 1; i <= 6; i++)
 			TextDrawer.drawText(g, "" + i, 1010 + (i - 1) * 44, 124, 4);
 		// fill in the plan history
-		for (int turn = 0; turn < ServerMain.MAX_TURNS; turn++)
+		for (int turn = 0; turn < Engine.MAX_TURNS; turn++)
 		{
 			if (ClientMain.main.getSelectedPirate() == null)
 				return;

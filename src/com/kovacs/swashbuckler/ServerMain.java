@@ -21,9 +21,10 @@ import com.kovacs.swashbuckler.packets.PirateAcceptedPacket;
 import com.kovacs.swashbuckler.packets.PlanAcceptedPacket;
 import com.kovacs.swashbuckler.packets.RequestPacket;
 import com.kovacs.swashbuckler.packets.ResponsePacket;
+import com.kovacs.swashbuckler3.Engine;
 
 /*
- * This is the main server-side application. It hosts and array list of
+ * This is the main server-side application. It hosts an array list of
  * connection objects and routes all information to each client. It updates the
  * clients with the appropriate data and game actions, while requesting
  * information from clients and handling the outcomes. It is responsible for
@@ -43,11 +44,6 @@ public class ServerMain
 	 * The number of pirates each player controls.
 	 */
 	public static int PIRATES_PER_PLAYER = 1;
-
-	/*
-	 * The number of turns in a game.
-	 */
-	public static final int MAX_TURNS = 15;
 
 	/*
 	 * This is the single instance of the main class.
@@ -74,11 +70,6 @@ public class ServerMain
 	 * plans.
 	 */
 	private HashMap<String, Plan[]> planHistory;
-
-	/*
-	 * Keeps track of the current game turn.
-	 */
-	private int currentTurn;
 
 	/*
 	 * The thread that accepts clients.
@@ -142,6 +133,14 @@ public class ServerMain
 		main = new ServerMain();
 		// main.gui.write("External IP: " + Utility.getExternalIPAddress());
 		main.clientAcceptThread.start();
+		try
+		{
+			Thread.sleep(200);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
 		main.run();
 	}
 
@@ -160,6 +159,7 @@ public class ServerMain
 	{
 		while (main.running)
 		{
+			// use indexed for loop to avoid concurrent modification exception
 			for (int i = 0; i < connections.size(); i++)
 			{
 				Connection c = connections.get(i);
@@ -275,8 +275,8 @@ public class ServerMain
 		board.add(pirate);
 		writeAll(new MessagePacket(pirate.getName() + " has joined the game."));
 		writeAll(new BoardPacket(board));
-		Plan[] emptyPlanHistory = new Plan[ServerMain.MAX_TURNS];
-		for (int i = 0; i < ServerMain.MAX_TURNS; i++)
+		Plan[] emptyPlanHistory = new Plan[Engine.MAX_TURNS];
+		for (int i = 0; i < Engine.MAX_TURNS; i++)
 			emptyPlanHistory[i] = Plan.createUnplannedPlan(i);
 		planHistory.put(pirate.getName(), emptyPlanHistory);
 		gui.write(board);
@@ -293,7 +293,7 @@ public class ServerMain
 		{
 			writeAll(new MessagePacket("All players are ready to begin."));
 			writeAll(new NextTurnPacket());
-			currentTurn = 1;
+//			currentTurn = 1;
 		}
 	}
 
@@ -304,17 +304,17 @@ public class ServerMain
 	{
 		for (Plan[] plans : planHistory.values())
 		{
-			if (!plans[currentTurn].isLocked())
-			{
-				System.out.println("Not all pirates have been planned.");
-				return;
-			}
+//			if (!plans[currentTurn].isLocked())
+//			{
+//				System.out.println("Not all pirates have been planned.");
+//				return;
+//			}
 		}
 		System.out.println("All pirates planned. Moving to resolution.");
-		//TODO: look into if this is the best way to actually do this or not.
-		board = new ResolutionHandler(board, planHistory, currentTurn).resolve();
+		// TODO: look into if this is the best way to actually do this or not.
+//		board = new ResolutionHandler(board, planHistory, currentTurn).resolve();
 		writeAll(new NextTurnPacket());
-		currentTurn++;
+//		currentTurn++;
 		// writeAll(new RequestPacket(Plan.class));
 	}
 

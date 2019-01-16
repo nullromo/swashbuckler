@@ -24,7 +24,7 @@ public class Pirate extends Entity implements Serializable
 	private Condition condition = Condition.STANDING;
 
 	/*
-	 * Enum for the three possible states of existence
+	 * Enum for the possible states of existence
 	 */
 	public enum Condition
 	{
