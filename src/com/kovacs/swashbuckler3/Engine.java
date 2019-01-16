@@ -29,7 +29,7 @@ public class Engine implements Runnable
 		Engine e = new Engine();
 		e.setup();
 		new Thread(e).start();
-		// TODO: do cleanup
+		e.cleanup();
 	}
 
 	/*
@@ -42,6 +42,14 @@ public class Engine implements Runnable
 				FillableFactory.createFillable(PirateRequestInfo.class).fill("constitution", 5).fill("endurance", 6)
 						.fill("strength", 4).fill("expertise", 9).fill("dexterity", Dexterity.RIGHT_HANDED)));
 		// TODO: do something with the filled requests
+	}
+	
+	/*
+	 * Performs cleanup actions, like freeing resources, displaying endgame messages, resetting, etc.
+	 */
+	private void cleanup()
+	{
+		System.exit(0);
 	}
 
 	/*
@@ -57,6 +65,7 @@ public class Engine implements Runnable
 			for (currentStep = 1; currentStep <= 6; currentStep++)
 				resolveStep();
 		}
+		System.out.println("Game completed");
 	}
 
 	/*
