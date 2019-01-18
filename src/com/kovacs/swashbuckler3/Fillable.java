@@ -63,6 +63,38 @@ public class Fillable
 	}
 
 	/*
+	 * Parses the fillable and returns an object of the specified type.
+	 */
+	public <T> T parse(Class<T> type) throws NoSuchFieldException, InstantiationException
+	{
+		Field[] desiredFields = type.getDeclaredFields();
+		// check to see that this fillable has all the required fields.
+		T object = null;
+		try
+		{
+			object = type.newInstance();
+		}
+		catch (IllegalAccessException e1)
+		{
+			e1.printStackTrace();
+		}
+		for (Field f : desiredFields)
+		{
+			if (!map.containsKey(f.getName()))
+				throw new NoSuchFieldException("The field " + f.getName() + " does not exist in this Fillable.");
+			try
+			{
+				f.set(object, map.get(f.getName()));
+			}
+			catch (IllegalArgumentException | IllegalAccessException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return object;
+	}
+
+	/*
 	 * Fills in the item corresponding to a string with an object.
 	 */
 	public Fillable fill(String s, Object o)

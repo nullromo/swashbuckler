@@ -44,6 +44,11 @@ public class Pirate extends Entity implements Serializable
 		}
 	};
 
+	public Pirate()
+	{
+		super(EntityType.PIRATE);
+	}
+
 	public Pirate(int head, int leftArm, int rightArm, int body, int strength, int endurance, int constitution,
 			int expertise, Dexterity dexterity, String name, BoardCoordinate... boardCoordinates)
 	{
@@ -59,9 +64,10 @@ public class Pirate extends Entity implements Serializable
 		this.dexterity = dexterity;
 		this.name = name;
 	}
-	
-	//TODO: change this, obviously.
-	@Override public BufferedImage getImage()
+
+	// TODO: change this, obviously.
+	@Override
+	public BufferedImage getImage()
 	{
 		return Images.pirate;
 	}

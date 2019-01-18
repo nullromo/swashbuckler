@@ -10,12 +10,12 @@ public class Player
 	/*
 	 * List of pirates this player controls.
 	 */
-	private Pirate[] pirates;
-	
+	public Pirate[] pirates;
+
 	public Player(Pirate... pirates)
 	{
 		this.pirates = pirates;
 	}
-	
-	//TODO: Connection information goes here
+
+	// TODO: Connection information goes here
 }

@@ -1,6 +1,5 @@
 package com.kovacs.swashbuckler3;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -47,6 +46,14 @@ public class Request implements WindowListener, ActionListener
 	public boolean isComplete()
 	{
 		return fillable.isFilled();
+	}
+	
+	/*
+	 * Parses the filled request and returns an object of the specified type.
+	 */
+	public <T> T parse(Class<T> type) throws NoSuchFieldException, InstantiationException
+	{
+		return fillable.parse(type);
 	}
 
 	/*

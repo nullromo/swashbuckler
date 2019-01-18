@@ -1,5 +1,8 @@
 package com.kovacs.swashbuckler3;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.game.entity.Pirate.Dexterity;
 import com.kovacs.swashbuckler3.Fillable.FillableFactory;
 
@@ -21,6 +24,11 @@ public class Engine implements Runnable
 	private int currentTurn, currentStep;
 
 	/*
+	 * List of all players in the game.
+	 */
+	private ArrayList<Player> players;
+
+	/*
 	 * Temporary main method to run the engine for testing TODO: remove this
 	 * eventually.
 	 */
@@ -32,20 +40,44 @@ public class Engine implements Runnable
 		e.cleanup();
 	}
 
+	public Engine()
+	{
+		players = new ArrayList<>();
+		//TODO: somehow acquire players
+		players.add(new Player());
+	}
+
 	/*
 	 * Performs setup actions, like gathering players, initializing the board,
 	 * etc.
 	 */
 	private void setup()
 	{
-		Request[] pirates = InformationRequester.request(new Request(new Player(),
-				FillableFactory.createFillable(PirateRequestInfo.class).fill("constitution", 5).fill("endurance", 6)
-						.fill("strength", 4).fill("expertise", 9).fill("dexterity", Dexterity.RIGHT_HANDED)));
+		for (Player p : players)
+		{
+			Request[] pirates = InformationRequester.request(new Request(new Player(),
+					FillableFactory.createFillable(PirateRequestInfo.class).fill("constitution", 5).fill("endurance", 6)
+							.fill("strength", 4).fill("expertise", 9).fill("dexterity", Dexterity.RIGHT_HANDED)));
+			p.pirates = Arrays.stream(pirates).map(x ->
+			{
+				try
+				{
+					return x.parse(Pirate.class);
+				}
+				catch (NoSuchFieldException | InstantiationException e)
+				{
+					e.printStackTrace();
+				}
+				return null;
+			}).toArray(Pirate[]::new);
+		}
+		System.out.println(players.get(0).pirates[0]);
 		// TODO: do something with the filled requests
 	}
-	
+
 	/*
-	 * Performs cleanup actions, like freeing resources, displaying endgame messages, resetting, etc.
+	 * Performs cleanup actions, like freeing resources, displaying endgame
+	 * messages, resetting, etc.
 	 */
 	private void cleanup()
 	{
@@ -75,6 +107,7 @@ public class Engine implements Runnable
 	{
 		// Request[] plans = InformationRequester.request();
 		// TODO: do something with the plans
+		System.out.println("Plans aquired for turn " + currentTurn + ".");
 	}
 
 	/*
@@ -89,5 +122,6 @@ public class Engine implements Runnable
 		// TODO: do something with the decisions
 		// }
 		// resolve action
+		System.out.println("Step " + currentStep + " of turn " + currentTurn + " resolved.");
 	}
 }
