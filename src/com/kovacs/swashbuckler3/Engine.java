@@ -3,8 +3,7 @@ package com.kovacs.swashbuckler3;
 import java.util.ArrayList;
 import java.util.Arrays;
 import com.kovacs.swashbuckler.game.entity.Pirate;
-import com.kovacs.swashbuckler.game.entity.Pirate.Dexterity;
-import com.kovacs.swashbuckler3.Fillable.FillableFactory;
+import com.kovacs.swashbuckler3.PirateData.Dexterity;
 
 /*
  * Core engine of the game. This runs on the server side. It contains all the
@@ -17,6 +16,11 @@ public class Engine implements Runnable
 	 * The number of turns in a game.
 	 */
 	public static final int MAX_TURNS = 15;
+
+	/*
+	 * Number of pirates each player controls.
+	 */
+	public static final int PIRATES_PER_PLAYER = 1;
 
 	/*
 	 * Keeps track of the current game turn and step.
@@ -43,7 +47,7 @@ public class Engine implements Runnable
 	public Engine()
 	{
 		players = new ArrayList<>();
-		//TODO: somehow acquire players
+		// TODO: somehow acquire players
 		players.add(new Player());
 	}
 
@@ -55,23 +59,13 @@ public class Engine implements Runnable
 	{
 		for (Player p : players)
 		{
-			Request[] pirates = InformationRequester.request(new Request(new Player(),
-					FillableFactory.createFillable(PirateRequestInfo.class).fill("constitution", 5).fill("endurance", 6)
-							.fill("strength", 4).fill("expertise", 9).fill("dexterity", Dexterity.RIGHT_HANDED)));
-			p.pirates = Arrays.stream(pirates).map(x ->
+			for (int i = 0; i < PIRATES_PER_PLAYER; i++)
 			{
-				try
-				{
-					return x.parse(Pirate.class);
-				}
-				catch (NoSuchFieldException | InstantiationException e)
-				{
-					e.printStackTrace();
-				}
-				return null;
-			}).toArray(Pirate[]::new);
+				Request pirateData = new PirateData().createRequest(p);
+				Request[] filledPirateData = InformationRequester.request(pirateData);
+			}
+
 		}
-		System.out.println(players.get(0).pirates[0]);
 		// TODO: do something with the filled requests
 	}
 

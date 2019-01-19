@@ -13,7 +13,6 @@ import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.Order;
 import com.kovacs.swashbuckler.game.Plan;
 import com.kovacs.swashbuckler.game.entity.Pirate;
-import com.kovacs.swashbuckler.game.entity.Pirate.Dexterity;
 import com.kovacs.swashbuckler.packets.BoardPacket;
 import com.kovacs.swashbuckler.packets.InvalidPirateNamePacket;
 import com.kovacs.swashbuckler.packets.MessagePacket;
@@ -25,6 +24,7 @@ import com.kovacs.swashbuckler.packets.PlanAcceptedPacket;
 import com.kovacs.swashbuckler.packets.RequestPacket;
 import com.kovacs.swashbuckler.packets.ResponsePacket;
 import com.kovacs.swashbuckler3.Engine;
+import com.kovacs.swashbuckler3.PirateData.Dexterity;
 
 /*
  * This is the main class for the client-side application. It will respond to
@@ -144,7 +144,7 @@ public class ClientMain
 			gui.writeMessage("\"" + pirate.getName() + "\" is already taken. Please choose another pirate name.");
 			ownedPirateNames.remove(pirate.getName());
 			String newName = Utility.getValidName();
-			pirate.setName(newName);
+//			pirate.pirateData.setName(newName);
 			ownedPirateNames.add(newName);
 			connection.write(new ResponsePacket<Pirate>(pirate));
 		}

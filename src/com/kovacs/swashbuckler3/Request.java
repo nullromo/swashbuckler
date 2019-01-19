@@ -25,6 +25,11 @@ public class Request implements WindowListener, ActionListener
 	private Fillable fillable;
 
 	/*
+	 * The target object that this request is trying to build.
+	 */
+	private Requestable target;
+
+	/*
 	 * True if the request has been sent and no reply has been received.
 	 */
 	private boolean pending;
@@ -34,26 +39,11 @@ public class Request implements WindowListener, ActionListener
 	 */
 	GUIRequest gui;
 
-	public Request(Player player, Fillable fillable)
+	public Request(Player player, Requestable target, Fillable fillable)
 	{
 		this.player = player;
+		this.target = target;
 		this.fillable = fillable;
-	}
-
-	/*
-	 * Returns true if the required information has been filled.
-	 */
-	public boolean isComplete()
-	{
-		return fillable.isFilled();
-	}
-	
-	/*
-	 * Parses the filled request and returns an object of the specified type.
-	 */
-	public <T> T parse(Class<T> type) throws NoSuchFieldException, InstantiationException
-	{
-		return fillable.parse(type);
 	}
 
 	/*
@@ -68,12 +58,35 @@ public class Request implements WindowListener, ActionListener
 		gui.create(fillable);
 	}
 
+	/*
+	 * Returns true if the required information has been filled.
+	 */
+	public boolean isComplete()
+	{
+		return fillable.isFilled();
+	}
+
+	public boolean isPending()
+	{
+		return pending;
+	}
+
+	public Requestable getTarget()
+	{
+		return target;
+	}
+
+	public Fillable getFillable()
+	{
+		return fillable;
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent arg0)
 	{
 		for (JPanel p : gui.neededItems)
 		{
-			String name = ((JLabel) p.getComponent(0)).getText().toLowerCase().replace(' ', '_');
+			String name = ((JLabel) p.getComponent(0)).getText();
 			Object valueHolder = p.getComponent(1);
 			Object value = null;
 			if (valueHolder instanceof JLabel)
@@ -124,10 +137,5 @@ public class Request implements WindowListener, ActionListener
 	@Override
 	public void windowOpened(WindowEvent e)
 	{
-	}
-
-	public boolean isPending()
-	{
-		return pending;
 	}
 }

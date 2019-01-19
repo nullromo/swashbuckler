@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
-import com.kovacs.swashbuckler.game.entity.Pirate.Dexterity;
+import com.kovacs.swashbuckler3.PirateData.Dexterity;
 
 public class GUIRequest extends JFrame
 {
@@ -74,7 +74,7 @@ public class GUIRequest extends JFrame
 		JPanel box = new JPanel();
 		box.setLayout(new GridLayout());
 		box.add(new JLabel((name.substring(0, 1).toUpperCase().concat(name.substring(1))).replace('_', ' ')));
-		if(o instanceof Class<?>)
+		if (o instanceof Class<?>)
 			neededItems.add(box);
 		if (o.equals(Integer.class))
 		{
