@@ -6,6 +6,10 @@ package com.kovacs.swashbuckler3;
  * general paradigm for gathering information is defined by the 3-step process
  * in the collect() function.
  */
+// TODO: The requester should have each thing going in it's own thread. More
+// importantly, people don't want their window to close on them before they have
+// been validated, so I may need to introduce some sort of ACK so that the
+// request filling window knows to close itself.
 public class InformationRequester
 {
 	/*
@@ -16,6 +20,12 @@ public class InformationRequester
 	/*
 	 * This is how the engine makes new requests.
 	 */
+	// TODO: Don't make this an array. Each thing should be able to be requested
+	// individually, and they should all happen in their own thread probably.
+	// But then there needs to be some sort of mechanism for telling when
+	// everything is done. The way it is now, where the requester can be called
+	// multiple times with different things to be requested seems a bit
+	// questionable.
 	public static Request[] request(Request... requests)
 	{
 		return new InformationRequester(requests).collect();

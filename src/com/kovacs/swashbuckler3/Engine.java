@@ -1,9 +1,6 @@
 package com.kovacs.swashbuckler3;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import com.kovacs.swashbuckler.game.entity.Pirate;
-import com.kovacs.swashbuckler3.PirateData.Dexterity;
 
 /*
  * Core engine of the game. This runs on the server side. It contains all the
@@ -20,7 +17,7 @@ public class Engine implements Runnable
 	/*
 	 * Number of pirates each player controls.
 	 */
-	public static final int PIRATES_PER_PLAYER = 1;
+	public static final int PIRATES_PER_PLAYER = 2;
 
 	/*
 	 * Keeps track of the current game turn and step.
@@ -49,6 +46,7 @@ public class Engine implements Runnable
 		players = new ArrayList<>();
 		// TODO: somehow acquire players
 		players.add(new Player());
+		players.add(new Player());
 	}
 
 	/*
@@ -57,14 +55,25 @@ public class Engine implements Runnable
 	 */
 	private void setup()
 	{
+		//example
+		//TODO: this API is not clean.
+		PirateData desired = new PirateData();
+		Player example = players.get(0);
+		desired.parseRequest(InformationRequester.request(desired.createRequest(example))[0]);
+		//end example
+		
 		for (Player p : players)
 		{
+			Request[] pirateDataRequests = new Request[PIRATES_PER_PLAYER];
 			for (int i = 0; i < PIRATES_PER_PLAYER; i++)
-			{
-				Request pirateData = new PirateData().createRequest(p);
-				Request[] filledPirateData = InformationRequester.request(pirateData);
-			}
-
+				pirateDataRequests[i] = new PirateData().createRequest(p);
+			Request[] filledPirateDataRequests = InformationRequester.request(pirateDataRequests);
+			for (int i = 0; i < PIRATES_PER_PLAYER; i++)
+				p.pirates[i] = (PirateData) pirateDataRequests[i].getTarget().parseRequest(filledPirateDataRequests[i]);
+				
+			
+			for(PirateData x: p.pirates)
+				System.out.println(x);
 		}
 		// TODO: do something with the filled requests
 	}
