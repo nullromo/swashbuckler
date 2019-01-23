@@ -55,24 +55,22 @@ public class Engine implements Runnable
 	 */
 	private void setup()
 	{
-		//example
-		//TODO: this API is not clean.
-		PirateData desired = new PirateData();
+		// example
+		// TODO: this API is not clean.
 		Player example = players.get(0);
-		desired.parseRequest(InformationRequester.request(desired.createRequest(example))[0]);
-		//end example
-		
+		Requestable.parseRequest(InformationRequester.request(PirateData.createRequest(example))[0]);
+		// end example
+
 		for (Player p : players)
 		{
 			Request[] pirateDataRequests = new Request[PIRATES_PER_PLAYER];
 			for (int i = 0; i < PIRATES_PER_PLAYER; i++)
-				pirateDataRequests[i] = new PirateData().createRequest(p);
+				pirateDataRequests[i] = PirateData.createRequest(p);
 			Request[] filledPirateDataRequests = InformationRequester.request(pirateDataRequests);
 			for (int i = 0; i < PIRATES_PER_PLAYER; i++)
-				p.pirates[i] = (PirateData) pirateDataRequests[i].getTarget().parseRequest(filledPirateDataRequests[i]);
-				
-			
-			for(PirateData x: p.pirates)
+				p.pirates[i] = (PirateData) PirateData.parseRequest(filledPirateDataRequests[i]);
+
+			for (PirateData x : p.pirates)
 				System.out.println(x);
 		}
 		// TODO: do something with the filled requests
