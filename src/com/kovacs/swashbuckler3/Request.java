@@ -12,7 +12,7 @@ import javax.swing.JTextField;
 /*
  * Represents one packet of information that the engine needs from a player.
  */
-public class Request implements WindowListener, ActionListener
+public class Request implements WindowListener, ActionListener, Comparable<Request>
 {
 	/*
 	 * The player that needs to fill this request.
@@ -29,6 +29,21 @@ public class Request implements WindowListener, ActionListener
 	 */
 	private Requestable target;
 
+	// A request can be UNFILLED, and then a player marks it as FILLED and sends
+	// it back. Then if there are issues, the engine marks it as ERROR and
+	// unfills the proper portions. Then the player can refill them properly.
+	// Finally, once the engine wants to accept the request, it sends back an
+	// empty FILLED state request.
+	public enum RequestStatus
+	{
+		ERROR, FILLED, UNFILLED
+	};
+
+	/*
+	 * The status of this request.
+	 */
+	public RequestStatus requestStatus;
+
 	/*
 	 * True if the request has been sent and no reply has been received.
 	 */
@@ -44,6 +59,12 @@ public class Request implements WindowListener, ActionListener
 		this.player = player;
 		this.target = target;
 		this.fillable = fillable;
+	}
+
+	@Override
+	public int compareTo(Request other)
+	{
+		return other.requestStatus.ordinal() - this.requestStatus.ordinal();
 	}
 
 	/*
