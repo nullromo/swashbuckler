@@ -1,5 +1,6 @@
 package com.kovacs.swashbuckler3;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,11 @@ public class GUIRequest extends JFrame
 	 * The button that submits the response.
 	 */
 	JButton submitButton = new JButton("Submit");
+
+	/*
+	 * An extra message for the viewer.
+	 */
+	JLabel message = new JLabel();
 
 	/*
 	 * List of all the panels (containing [JLabel, Thing] where Thing is the
@@ -57,9 +63,12 @@ public class GUIRequest extends JFrame
 				panel.add(component);
 		}
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		message.setForeground(Color.RED);
+		panel.add(message);
 		panel.add(submitButton);
 		add(panel);
 		setLocationRelativeTo(null);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		pack();
 		setVisible(true);
 	}
@@ -70,7 +79,7 @@ public class GUIRequest extends JFrame
 	 */
 	private JPanel createComponent(String name, Object o)
 	{
-		System.out.println("creating component: " + name + " as " + o);
+		// System.out.println("creating component: " + name + " as " + o);
 		JPanel box = new JPanel();
 		box.setLayout(new GridLayout());
 		box.add(new JLabel((name.substring(0, 1).toUpperCase().concat(name.substring(1))).replace('_', ' ')));
@@ -103,5 +112,13 @@ public class GUIRequest extends JFrame
 		else
 			throw new RuntimeException("Unsupported GUI Fillable type: " + o);
 		return box;
+	}
+
+	/*
+	 * Changes the message displayed to the viewer.
+	 */
+	public void setMessage(String s)
+	{
+		message.setText(s);
 	}
 }

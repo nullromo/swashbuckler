@@ -1,78 +1,126 @@
 package com.kovacs.swashbuckler3;
 
+import java.util.ArrayList;
+import com.kovacs.swashbuckler3.Request.RequestStatus;
+
 /*
  * This class is instantiated by the engine when information is needed. The
  * needed information is defined in terms of a list of fillable questions. The
  * general paradigm for gathering information is defined by the 3-step process
  * in the collect() function.
  */
-// TODO: The requester should have each thing going in it's own thread. More
-// importantly, people don't want their window to close on them before they have
-// been validated, so I may need to introduce some sort of ACK so that the
-// request filling window knows to close itself.
 public class InformationRequester
 {
 	/*
-	 * List of requests to be filled.
+	 * A reference to the list of all players from the engine.
 	 */
-	private Request[] requests;
+	private ArrayList<Player> players;
 
 	/*
-	 * This is how the engine makes new requests.
+	 * A list of all the requests that are to be filled.
 	 */
-	// TODO: Don't make this an array. Each thing should be able to be requested
-	// individually, and they should all happen in their own thread probably.
-	// But then there needs to be some sort of mechanism for telling when
-	// everything is done. The way it is now, where the requester can be called
-	// multiple times with different things to be requested seems a bit
-	// questionable.
-	public static Request[] request(Request... requests)
+	private ArrayList<Request> requests = new ArrayList<>();
+
+	/*
+	 * Tells whether the information requester has been flushed. It must be
+	 * flushed after each round of use.
+	 */
+	private boolean flushed = true;
+
+	public InformationRequester(ArrayList<Player> players)
 	{
-		return new InformationRequester(requests).collect();
+		this.players = players;
+		for (Player p : players)
+			p.start();
 	}
 
-	private InformationRequester(Request... requests)
+	/*
+	 * Sets up a given request for filling.
+	 */
+	public void request(Request request)
 	{
-		this.requests = requests;
+		assertFlushed();
+		requests.add(request);
 	}
 
 	/*
 	 * Collects all responses and returns when everything has been filled and
 	 * validated. This is how the engine gathers results.
 	 */
-	private Request[] collect()
+	public void collect()
 	{
+		assertFlushed();
+		flushed = false;
+		for (Request request : requests)
+			request.send();
 		while (!isComplete())
 		{
-			sendRequests();
-			waitForResponse();
-			checkResponse();
+			for (Player player : players)
+			{
+				if (!player.hasResponse())
+					continue;
+				Request r = player.take();
+				System.out.println("InformationRequester got request: " + r);
+				if (r == null)
+					continue;
+				check(r);
+				player.put(r);
+			}
 		}
-		return requests;
 	}
 
 	/*
-	 * Creates all required requests and sends them to the players.
+	 * Mutates the request according to what was wrong. Sets it to FILLED if
+	 * everything is okay.
 	 */
-	private void sendRequests()
+	// TODO: this method.
+	private void check(Request request)
 	{
-		for (Request r : requests)
-			if (!r.isComplete() && !r.isPending())
-				r.send();
+		request.message = "";
+		if (request.getTarget() instanceof PirateData)
+		{
+			PirateData pirate = (PirateData) Requestable.parseRequest(request);
+			if (pirate.getBody() <= 0 || pirate.getHead() <= 0 || pirate.getLeftArm() <= 0 || pirate.getRightArm() <= 0)
+			{
+				request.message += "Each area must have a positive number of hit points. ";
+				request.requestStatus = RequestStatus.ERROR;
+			}
+			if (Math.abs((pirate.getLeftArm() - pirate.getRightArm())) > 1)
+			{
+				request.message += "The difference between the left and right arms cannot exceed 1 hit point. ";
+				request.requestStatus = RequestStatus.ERROR;
+			}
+			if (pirate.getBody() + pirate.getHead() + pirate.getLeftArm() + pirate.getRightArm() != pirate
+					.getConstitution())
+			{
+				request.message += "The sum of all hit point areas must equal the pirate's constitution ("
+						+ pirate.getConstitution() + "). ";
+				request.requestStatus = RequestStatus.ERROR;
+			}
+			if(pirate.getName().length() > 32 || pirate.getName().length() < 2)
+			{
+				request.message += "Pirate's names must be between 2 and 32 characters. ";
+				request.requestStatus = RequestStatus.ERROR;
+			}
+		}
 	}
 
 	/*
-	 * Blocks until a response comes back for any of the sent requests.
+	 * Flushes the InformationRequester.
 	 */
-	private void waitForResponse()
+	public void flush()
 	{
+		flushed = true;
+		requests = new ArrayList<>();
 	}
 
 	/*
-	 * Validates responses for legality and correctness.
+	 * Asserts that the InformationRequester is flushed.
 	 */
-	private void checkResponse()
+	private void assertFlushed()
 	{
+		if (!flushed)
+			throw new RuntimeException("The InformationRequester must be flushed before it is used again.");
 	}
 
 	/*
@@ -83,6 +131,14 @@ public class InformationRequester
 		for (Request r : requests)
 			if (!r.isComplete())
 				return false;
+		for (Player p : players)
+			if (p.hasResponse())
+				return false;
 		return true;
+	}
+
+	public ArrayList<Request> getRequests()
+	{
+		return requests;
 	}
 }

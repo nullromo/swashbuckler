@@ -30,6 +30,11 @@ public class Engine implements Runnable
 	private ArrayList<Player> players;
 
 	/*
+	 * The engine's instance of the information requester.
+	 */
+	private InformationRequester informationRequester;
+
+	/*
 	 * Temporary main method to run the engine for testing TODO: remove this
 	 * eventually.
 	 */
@@ -47,6 +52,7 @@ public class Engine implements Runnable
 		// TODO: somehow acquire players
 		players.add(new Player());
 		players.add(new Player());
+		informationRequester = new InformationRequester(players);
 	}
 
 	/*
@@ -55,25 +61,17 @@ public class Engine implements Runnable
 	 */
 	private void setup()
 	{
-		// example
-		// TODO: this API is not clean.
-		Player example = players.get(0);
-		Requestable.parseRequest(InformationRequester.request(PirateData.createRequest(example))[0]);
-		// end example
-
-		for (Player p : players)
+		for (Player player : players)
 		{
-			Request[] pirateDataRequests = new Request[PIRATES_PER_PLAYER];
 			for (int i = 0; i < PIRATES_PER_PLAYER; i++)
-				pirateDataRequests[i] = PirateData.createRequest(p);
-			Request[] filledPirateDataRequests = InformationRequester.request(pirateDataRequests);
-			for (int i = 0; i < PIRATES_PER_PLAYER; i++)
-				p.pirates[i] = (PirateData) PirateData.parseRequest(filledPirateDataRequests[i]);
-
-			for (PirateData x : p.pirates)
-				System.out.println(x);
+			{
+				informationRequester.request(PirateData.createRequest(player));
+			}
 		}
-		// TODO: do something with the filled requests
+		informationRequester.collect();
+		for (Request request : informationRequester.getRequests())
+			request.getPlayer().addPirate((PirateData) request.getTarget());
+		System.out.println("Pirates obtained!");
 	}
 
 	/*
@@ -106,7 +104,7 @@ public class Engine implements Runnable
 	 */
 	private void acquirePlans()
 	{
-		// Request[] plans = InformationRequester.request();
+		// Request[] plans = informationRequester.request();
 		// TODO: do something with the plans
 		System.out.println("Plans aquired for turn " + currentTurn + ".");
 	}
@@ -119,7 +117,7 @@ public class Engine implements Runnable
 		// while(there are actions to resolve)
 		// {
 		// pick next action
-		// Request[] decisions = InformationRequester.request()z;
+		// Request[] decisions = informationRequester.request();
 		// TODO: do something with the decisions
 		// }
 		// resolve action

@@ -1,5 +1,6 @@
 package com.kovacs.swashbuckler3;
 
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import com.kovacs.swashbuckler3.Request.RequestStatus;
@@ -13,8 +14,7 @@ public class Player implements Runnable
 	/*
 	 * List of pirates this player controls.
 	 */
-	// TODO: maybe don't have this be public.
-	public PirateData[] pirates = new PirateData[Engine.PIRATES_PER_PLAYER];
+	private ArrayList<PirateData> pirates = new ArrayList<>();
 
 	/*
 	 * Whether this thread is running or not.
@@ -29,9 +29,8 @@ public class Player implements Runnable
 	/*
 	 * Communication channel between this player and the engine.
 	 */
-	// TODO: maybe don't have this be public.
-	public BlockingQueue<Request> in = new PriorityBlockingQueue<>();
-	public BlockingQueue<Request> out = new PriorityBlockingQueue<>();
+	private BlockingQueue<Request> in = new PriorityBlockingQueue<>();
+	private BlockingQueue<Request> out = new PriorityBlockingQueue<>();
 
 	/*
 	 * Stops the client from running and cleans up.
@@ -53,7 +52,6 @@ public class Player implements Runnable
 	public void run()
 	{
 		running = true;
-		Request r = null;
 		while (running)
 		{
 			// if there are no requests in the queue, do nothing.
@@ -66,34 +64,106 @@ public class Player implements Runnable
 			// all.
 			if (waitingForResponse && in.peek().requestStatus == RequestStatus.UNFILLED)
 				continue;
-			try
-			{
-				r = in.take();
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
+			Request r = accept();
+			if (r == null)
+				continue;
 			if (r.requestStatus == RequestStatus.UNFILLED)
 			{
-				// TODO: this is where the gui pops up and the user fills out
-				// the request.
-				// TODO: then the request is sent back via the out queue.
+				System.out.println("Player " + this + " got an unfilled request: " + r);
 				waitingForResponse = true;
+				r.createGUI();
 			}
 			else if (r.requestStatus == RequestStatus.ERROR)
 			{
-				// TODO: this is where the gui says "here's what went wrong" and
-				// then the user refills the request and it's sent back via the
-				// out queue.
+				System.out.println("Player " + this + " got an error request: " + r);
 				waitingForResponse = true;
+				r.setGUIEnabled(true);
+				r.setGUIMessage(r.message);
 			}
 			else if (r.requestStatus == RequestStatus.FILLED)
 			{
-				// TODO: this is where the gui closes.
+				System.out.println("Player " + this + " got an ack: " + r);
+				r.closeGUI();
 				waitingForResponse = false;
 			}
 		}
+	}
+
+	/*
+	 * Way for the player to send something.
+	 */
+	public void send(Request request)
+	{
+		try
+		{
+			out.put(request);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Way for the player to receive something.
+	 */
+	private Request accept()
+	{
+		Request request = null;
+		try
+		{
+			request = in.take();
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		return request;
+	}
+
+	/*
+	 * Way to send something to the player.
+	 */
+	public void put(Request request)
+	{
+		try
+		{
+			in.put(request);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Way to grab responses from the player.
+	 */
+	public Request take()
+	{
+		Request request = null;
+		try
+		{
+			request = out.take();
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		return request;
+	}
+
+	/*
+	 * Tells whether or not there is anything in the output queue.
+	 */
+	public boolean hasResponse()
+	{
+		return !out.isEmpty();
+	}
+	
+	public void addPirate(PirateData p)
+	{
+		pirates.add(p);
 	}
 
 	// TODO: Connection information goes here

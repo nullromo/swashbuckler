@@ -3,7 +3,7 @@ package com.kovacs.swashbuckler3;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -12,7 +12,7 @@ import javax.swing.JTextField;
 /*
  * Represents one packet of information that the engine needs from a player.
  */
-public class Request implements WindowListener, ActionListener, Comparable<Request>
+public class Request implements ActionListener, Comparable<Request>
 {
 	/*
 	 * The player that needs to fill this request.
@@ -29,6 +29,11 @@ public class Request implements WindowListener, ActionListener, Comparable<Reque
 	 */
 	private Requestable target;
 
+	/*
+	 * A way for the engine and the player to tag requests with some extra data.
+	 */
+	public String message;
+
 	// A request can be UNFILLED, and then a player marks it as FILLED and sends
 	// it back. Then if there are issues, the engine marks it as ERROR and
 	// unfills the proper portions. Then the player can refill them properly.
@@ -42,12 +47,7 @@ public class Request implements WindowListener, ActionListener, Comparable<Reque
 	/*
 	 * The status of this request.
 	 */
-	public RequestStatus requestStatus;
-
-	/*
-	 * True if the request has been sent and no reply has been received.
-	 */
-	private boolean pending;
+	public RequestStatus requestStatus = RequestStatus.UNFILLED;
 
 	/*
 	 * The gui for this request.
@@ -64,7 +64,7 @@ public class Request implements WindowListener, ActionListener, Comparable<Reque
 	@Override
 	public int compareTo(Request other)
 	{
-		return other.requestStatus.ordinal() - this.requestStatus.ordinal();
+		return this.requestStatus.ordinal() - other.requestStatus.ordinal();
 	}
 
 	/*
@@ -72,11 +72,26 @@ public class Request implements WindowListener, ActionListener, Comparable<Reque
 	 */
 	public void send()
 	{
-		pending = true;
+		player.put(this);
+	}
+
+	/*
+	 * Creates the GUI.
+	 */
+	public void createGUI()
+	{
 		gui = new GUIRequest(player.toString());
-		gui.addWindowListener(this);
 		gui.submitButton.addActionListener(this);
 		gui.create(fillable);
+	}
+
+	/*
+	 * Closes the GUI.
+	 */
+	public void closeGUI()
+	{
+		gui.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		gui.dispatchEvent(new WindowEvent(gui, WindowEvent.WINDOW_CLOSING));
 	}
 
 	/*
@@ -85,11 +100,6 @@ public class Request implements WindowListener, ActionListener, Comparable<Reque
 	public boolean isComplete()
 	{
 		return fillable.isFilled();
-	}
-
-	public boolean isPending()
-	{
-		return pending;
 	}
 
 	public Requestable getTarget()
@@ -102,9 +112,32 @@ public class Request implements WindowListener, ActionListener, Comparable<Reque
 		return fillable;
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent arg0)
+	public Player getPlayer()
 	{
+		return player;
+	}
+
+	/*
+	 * Enables and Disables the GUI.
+	 */
+	public void setGUIEnabled(boolean enabled)
+	{
+		gui.setEnabled(enabled);
+	}
+
+	/*
+	 * Sets the GUI's message for the viewer to see.
+	 */
+	public void setGUIMessage(String s)
+	{
+		gui.setMessage(s);
+		gui.pack();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		setGUIEnabled(false);
 		for (JPanel p : gui.neededItems)
 		{
 			String name = ((JLabel) p.getComponent(0)).getText();
@@ -120,43 +153,6 @@ public class Request implements WindowListener, ActionListener, Comparable<Reque
 			}
 			fillable.fill(name, value);
 		}
-		gui.dispatchEvent(new WindowEvent(gui, WindowEvent.WINDOW_CLOSING));
-		pending = false;
-	}
-
-	@Override
-	public void windowActivated(WindowEvent e)
-	{
-	}
-
-	@Override
-	public void windowClosed(WindowEvent e)
-	{
-	}
-
-	@Override
-	public void windowClosing(WindowEvent e)
-	{
-		pending = false;
-	}
-
-	@Override
-	public void windowDeactivated(WindowEvent e)
-	{
-	}
-
-	@Override
-	public void windowDeiconified(WindowEvent e)
-	{
-	}
-
-	@Override
-	public void windowIconified(WindowEvent e)
-	{
-	}
-
-	@Override
-	public void windowOpened(WindowEvent e)
-	{
+		player.send(this);
 	}
 }
