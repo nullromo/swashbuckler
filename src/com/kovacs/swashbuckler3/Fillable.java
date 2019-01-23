@@ -37,6 +37,17 @@ public class Fillable
 		map.put(s, o);
 		return this;
 	}
+	
+	/*
+	 * Un-fills all the items in the fillable.
+	 */
+	public void reset()
+	{
+		for(String key:map.keySet())
+		{
+			map.put(key, map.get(key).getClass());
+		}
+	}
 
 	/*
 	 * Returns the object that has been filled for a given string.

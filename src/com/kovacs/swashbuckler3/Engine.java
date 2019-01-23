@@ -17,7 +17,7 @@ public class Engine implements Runnable
 	/*
 	 * Number of pirates each player controls.
 	 */
-	public static final int PIRATES_PER_PLAYER = 2;
+	public static final int PIRATES_PER_PLAYER = 1;
 
 	/*
 	 * Keeps track of the current game turn and step.

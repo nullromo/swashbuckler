@@ -66,6 +66,14 @@ public class InformationRequester
 				check(r);
 				player.put(r);
 			}
+			try
+			{
+				Thread.sleep(10);
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -73,10 +81,10 @@ public class InformationRequester
 	 * Mutates the request according to what was wrong. Sets it to FILLED if
 	 * everything is okay.
 	 */
-	// TODO: this method.
 	private void check(Request request)
 	{
 		request.message = "";
+		request.requestStatus = RequestStatus.UNFILLED;
 		if (request.getTarget() instanceof PirateData)
 		{
 			PirateData pirate = (PirateData) Requestable.parseRequest(request);
@@ -97,12 +105,16 @@ public class InformationRequester
 						+ pirate.getConstitution() + "). ";
 				request.requestStatus = RequestStatus.ERROR;
 			}
-			if(pirate.getName().length() > 32 || pirate.getName().length() < 2)
+			if (pirate.getName().length() > 32 || pirate.getName().length() < 2)
 			{
-				request.message += "Pirate's names must be between 2 and 32 characters. ";
+				request.message += "Pirate names must be between 2 and 32 characters. ";
 				request.requestStatus = RequestStatus.ERROR;
 			}
 		}
+		if (request.requestStatus == RequestStatus.UNFILLED)
+			request.requestStatus = RequestStatus.FILLED;
+		else
+			request.getFillable().reset();
 	}
 
 	/*

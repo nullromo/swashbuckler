@@ -86,6 +86,14 @@ public class Player implements Runnable
 				r.closeGUI();
 				waitingForResponse = false;
 			}
+			try
+			{
+				Thread.sleep(10);
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
