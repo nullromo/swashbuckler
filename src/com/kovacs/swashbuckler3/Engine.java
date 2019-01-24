@@ -1,7 +1,5 @@
 package com.kovacs.swashbuckler3;
 
-import java.util.ArrayList;
-
 /*
  * Core engine of the game. This runs on the server side. It contains all the
  * information and does all the work specifically related to running the game
@@ -20,24 +18,24 @@ public class Engine implements Runnable
 	public static final int PIRATES_PER_PLAYER = 1;
 
 	/*
+	 * Number of players in the game.
+	 */
+	public static final int PLAYERS = 2;
+
+	/*
 	 * Keeps track of the current game turn and step.
 	 */
 	private int currentTurn, currentStep;
 
 	/*
-	 * List of all players in the game.
-	 */
-	private ArrayList<Player> players;
-
-	/*
 	 * The engine's instance of the information requester.
 	 */
-	private InformationRequester informationRequester;
+	private InformationRequester informationRequester = new InformationRequester(PLAYERS);
 
 	/*
-	 * Temporary main method to run the engine for testing TODO: remove this
-	 * eventually.
+	 * Temporary main method to run the engine for testing.
 	 */
+	// TODO: remove this eventually.
 	public static void main(String[] args)
 	{
 		Engine e = new Engine();
@@ -48,11 +46,7 @@ public class Engine implements Runnable
 
 	public Engine()
 	{
-		players = new ArrayList<>();
-		// TODO: somehow acquire players
-		players.add(new Player());
-		players.add(new Player());
-		informationRequester = new InformationRequester(players);
+		// TODO: add in-game chat
 	}
 
 	/*
@@ -61,7 +55,7 @@ public class Engine implements Runnable
 	 */
 	private void setup()
 	{
-		for (Player player : players)
+		for (Player player : informationRequester.getPlayers())
 		{
 			for (int i = 0; i < PIRATES_PER_PLAYER; i++)
 			{
@@ -80,6 +74,7 @@ public class Engine implements Runnable
 	 */
 	private void cleanup()
 	{
+		informationRequester.close();
 		System.exit(0);
 	}
 

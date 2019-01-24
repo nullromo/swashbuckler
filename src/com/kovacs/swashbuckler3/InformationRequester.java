@@ -1,13 +1,12 @@
 package com.kovacs.swashbuckler3;
 
 import java.util.ArrayList;
+import com.kovacs.swashbuckler.Utility;
 import com.kovacs.swashbuckler3.Request.RequestStatus;
 
 /*
- * This class is instantiated by the engine when information is needed. The
- * needed information is defined in terms of a list of fillable questions. The
- * general paradigm for gathering information is defined by the 3-step process
- * in the collect() function.
+ * This class is instantiated by the engine. It handles communication between
+ * the engine and the Player threads.
  */
 public class InformationRequester
 {
@@ -27,11 +26,22 @@ public class InformationRequester
 	 */
 	private boolean flushed = true;
 
-	public InformationRequester(ArrayList<Player> players)
+	public InformationRequester(int numPlayers)
 	{
-		this.players = players;
+		players = new ArrayList<>();
+		for (int i = 0; i < numPlayers; i++)
+			players.add(new Player());
 		for (Player p : players)
 			p.start();
+	}
+
+	/*
+	 * Closes the InformationRequester and shuts down all the player threads.
+	 */
+	public void close()
+	{
+		for (Player p : players)
+			p.stop();
 	}
 
 	/*
@@ -55,6 +65,7 @@ public class InformationRequester
 			request.send();
 		while (!isComplete())
 		{
+			Utility.sleep(10);
 			for (Player player : players)
 			{
 				if (!player.hasResponse())
@@ -62,17 +73,9 @@ public class InformationRequester
 				Request r = player.take();
 				System.out.println("InformationRequester got request: " + r);
 				if (r == null)
-					continue;
+					throw new RuntimeException("InformationRequester got a null request from a player.");
 				check(r);
 				player.put(r);
-			}
-			try
-			{
-				Thread.sleep(10);
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
 			}
 		}
 	}
@@ -83,38 +86,27 @@ public class InformationRequester
 	 */
 	private void check(Request request)
 	{
-		request.message = "";
-		request.requestStatus = RequestStatus.UNFILLED;
+		request.errorMessage = "";
 		if (request.getTarget() instanceof PirateData)
 		{
-			PirateData pirate = (PirateData) Requestable.parseRequest(request);
-			if (pirate.getBody() <= 0 || pirate.getHead() <= 0 || pirate.getLeftArm() <= 0 || pirate.getRightArm() <= 0)
-			{
-				request.message += "Each area must have a positive number of hit points. ";
-				request.requestStatus = RequestStatus.ERROR;
-			}
-			if (Math.abs((pirate.getLeftArm() - pirate.getRightArm())) > 1)
-			{
-				request.message += "The difference between the left and right arms cannot exceed 1 hit point. ";
-				request.requestStatus = RequestStatus.ERROR;
-			}
-			if (pirate.getBody() + pirate.getHead() + pirate.getLeftArm() + pirate.getRightArm() != pirate
-					.getConstitution())
-			{
-				request.message += "The sum of all hit point areas must equal the pirate's constitution ("
-						+ pirate.getConstitution() + "). ";
-				request.requestStatus = RequestStatus.ERROR;
-			}
-			if (pirate.getName().length() > 32 || pirate.getName().length() < 2)
-			{
-				request.message += "Pirate names must be between 2 and 32 characters. ";
-				request.requestStatus = RequestStatus.ERROR;
-			}
+			PirateData p = PirateData.parseRequest(request);
+			if (p.getBody() <= 0 || p.getHead() <= 0 || p.getLeftArm() <= 0 || p.getRightArm() <= 0)
+				request.errorMessage += "Each area must have a positive number of hit points. ";
+			if (Math.abs((p.getLeftArm() - p.getRightArm())) > 1)
+				request.errorMessage += "The difference between the left and right arms cannot exceed 1 hit point. ";
+			if (p.getBody() + p.getHead() + p.getLeftArm() + p.getRightArm() != p.getConstitution())
+				request.errorMessage += "The sum of all hit point areas must equal the pirate's constitution ("
+						+ p.getConstitution() + "). ";
+			if (!p.nameValid())
+				request.errorMessage += "Pirate names must be between 2 and 32 letter-only characters, and must consist of one or two non-profane words. ";
 		}
-		if (request.requestStatus == RequestStatus.UNFILLED)
+		if (request.errorMessage.equals(""))
 			request.requestStatus = RequestStatus.FILLED;
 		else
+		{
+			request.requestStatus = RequestStatus.ERROR;
 			request.getFillable().reset();
+		}
 	}
 
 	/*
@@ -136,7 +128,8 @@ public class InformationRequester
 	}
 
 	/*
-	 * Returns true if all the requests are filled.
+	 * Returns true if all the requests are filled and all players are done
+	 * responding.
 	 */
 	private boolean isComplete()
 	{
@@ -152,5 +145,10 @@ public class InformationRequester
 	public ArrayList<Request> getRequests()
 	{
 		return requests;
+	}
+
+	public ArrayList<Player> getPlayers()
+	{
+		return players;
 	}
 }

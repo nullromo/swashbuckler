@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -18,6 +19,30 @@ import com.kovacs.swashbuckler.game.BoardCoordinate;
  */
 public class Utility
 {
+	/*
+	 * Throws an exception if the given number is negative.
+	 */
+	public static void assertPositive(int i)
+	{
+		if (i < 0)
+			throw new RuntimeException("This number cannot be negative.");
+	}
+
+	/*
+	 * Sleeps the calling thread.
+	 */
+	public static void sleep(int millis)
+	{
+		try
+		{
+			Thread.sleep(millis);
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	/*
 	 * Tells whether a character is a printable character in the game or not.
 	 */
@@ -164,6 +189,33 @@ public class Utility
 	}
 
 	/*
+	 * Tells whether a string is profane or not.
+	 */
+	public static boolean isProfane(String ss)
+	{
+		String s = ss.toLowerCase();
+		for (String p : profanityList)
+		{
+			if (s.contains(p))
+				return true;
+		}
+		return false;
+	}
+
+	/*
+	 * List of disallowed words.
+	 */
+	private static ArrayList<String> profanityList = new ArrayList<>();
+	static
+	{
+		for (String s : new String[] { "shit", "fuck", "ass", "bitch", "tits", "nigger", "anus", "hole", "titty",
+				"tittie", "whore", "cunt", "penis", "dick", "cock", "wank", "crap", "poop", "turd", "twat", "jizz",
+				"cum", "semen", "pecker", "stiffy", "erection", "damn", "butt", "gay", "slut", "queer", "fag", "urine",
+				"piss", "pee", "masturbat", "fap", "fart" })
+			profanityList.add(s);
+	}
+
+	/*
 	 * Takes a non-zero integer from the standard input
 	 */
 	public static int getInt(int max)
@@ -220,10 +272,10 @@ public class Utility
 	public enum Direction
 	{
 		NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST;
-		
+
 		public Direction opposite()
 		{
-			switch(this)
+			switch (this)
 			{
 				case EAST:
 					return WEST;

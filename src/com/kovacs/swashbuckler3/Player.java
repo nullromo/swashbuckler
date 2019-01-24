@@ -3,11 +3,12 @@ package com.kovacs.swashbuckler3;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
+import com.kovacs.swashbuckler.Utility;
 import com.kovacs.swashbuckler3.Request.RequestStatus;
 
 /*
  * Represents a human player in a game. This is a server-side class that handles
- * forwarding information to the user and forwarding requests from the user.
+ * passing information to and from the user.
  */
 public class Player implements Runnable
 {
@@ -19,13 +20,8 @@ public class Player implements Runnable
 	/*
 	 * The unique ID of this player.
 	 */
-	private final int ID;
+	private final int ID = ++nextID;
 
-	public Player()
-	{
-		ID = ++nextID;
-	}
-	
 	@Override
 	public String toString()
 	{
@@ -75,10 +71,11 @@ public class Player implements Runnable
 		running = true;
 		while (running)
 		{
-			// if there are no requests in the queue, do nothing.
+			Utility.sleep(10);
+			// If there are no requests in the queue, do nothing.
 			if (in.isEmpty())
 				continue;
-			// if we are waiting to get a FILLED or ERROR back, and there isn't
+			// If we are waiting to get a FILLED or ERROR back, and there isn't
 			// one, then do nothing. Keep in mind that all ERROR and FILLED
 			// requests will have higher priority that UNFILLED ones, so they
 			// will be moved to the front of the queue if they exist in it at
@@ -87,33 +84,25 @@ public class Player implements Runnable
 				continue;
 			Request r = accept();
 			if (r == null)
-				continue;
+				throw new RuntimeException("Null request received by player.");
 			if (r.requestStatus == RequestStatus.UNFILLED)
 			{
-				System.out.println("Player " + this + " got an unfilled request: " + r);
+				System.out.println(this + " got an unfilled request: " + r);
 				waitingForResponse = true;
 				r.createGUI();
 			}
 			else if (r.requestStatus == RequestStatus.ERROR)
 			{
-				System.out.println("Player " + this + " got an error request: " + r);
+				System.out.println(this + " got an error request: " + r);
 				waitingForResponse = true;
 				r.setGUIEnabled(true);
-				r.setGUIMessage(r.message);
+				r.setGUIMessage(r.errorMessage);
 			}
 			else if (r.requestStatus == RequestStatus.FILLED)
 			{
-				System.out.println("Player " + this + " got an ack: " + r);
+				System.out.println(this + " got an ack: " + r);
 				r.closeGUI();
 				waitingForResponse = false;
-			}
-			try
-			{
-				Thread.sleep(10);
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
 			}
 		}
 	}
@@ -187,7 +176,7 @@ public class Player implements Runnable
 	 */
 	public boolean hasResponse()
 	{
-		return !out.isEmpty();
+		return !out.isEmpty() || waitingForResponse;
 	}
 
 	public void addPirate(PirateData p)

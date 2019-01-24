@@ -32,13 +32,13 @@ public class Request implements ActionListener, Comparable<Request>
 	/*
 	 * A way for the engine and the player to tag requests with some extra data.
 	 */
-	public String message;
+	public String errorMessage;
 
 	// A request can be UNFILLED, and then a player marks it as FILLED and sends
 	// it back. Then if there are issues, the engine marks it as ERROR and
-	// unfills the proper portions. Then the player can refill them properly.
-	// Finally, once the engine wants to accept the request, it sends back an
-	// empty FILLED state request.
+	// unfills the request. Then the player can refill them properly. Finally,
+	// once the engine wants to accept the request, it sends back an empty
+	// FILLED state request.
 	public enum RequestStatus
 	{
 		ERROR, FILLED, UNFILLED
@@ -59,6 +59,26 @@ public class Request implements ActionListener, Comparable<Request>
 		this.player = player;
 		this.target = target;
 		this.fillable = fillable;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		setGUIEnabled(false);
+		for (JPanel p : gui.neededItems)
+		{
+			String name = ((JLabel) p.getComponent(0)).getText();
+			Object valueHolder = p.getComponent(1);
+			Object value = null;
+			if (valueHolder instanceof JLabel)
+				value = ((JLabel) valueHolder).getText();
+			else if (valueHolder instanceof JSpinner)
+				value = ((JSpinner) valueHolder).getValue();
+			else if (valueHolder instanceof JTextField)
+				value = ((JTextField) valueHolder).getText();
+			fillable.fill(name, value);
+		}
+		player.send(this);
 	}
 
 	@Override
@@ -102,21 +122,6 @@ public class Request implements ActionListener, Comparable<Request>
 		return fillable.isFilled();
 	}
 
-	public Requestable getTarget()
-	{
-		return target;
-	}
-
-	public Fillable getFillable()
-	{
-		return fillable;
-	}
-
-	public Player getPlayer()
-	{
-		return player;
-	}
-
 	/*
 	 * Enables and Disables the GUI.
 	 */
@@ -134,25 +139,25 @@ public class Request implements ActionListener, Comparable<Request>
 		gui.pack();
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e)
+	public Requestable getTarget()
 	{
-		setGUIEnabled(false);
-		for (JPanel p : gui.neededItems)
-		{
-			String name = ((JLabel) p.getComponent(0)).getText();
-			Object valueHolder = p.getComponent(1);
-			Object value = null;
-			if (valueHolder instanceof JLabel)
-				value = ((JLabel) valueHolder).getText();
-			else if (valueHolder instanceof JSpinner)
-				value = ((JSpinner) valueHolder).getValue();
-			else if (valueHolder instanceof JTextField)
-			{
-				value = ((JTextField) valueHolder).getText();
-			}
-			fillable.fill(name, value);
-		}
-		player.send(this);
+		return target;
+	}
+
+	public Fillable getFillable()
+	{
+		return fillable;
+	}
+
+	public Player getPlayer()
+	{
+		return player;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "<" + player + "," + target.getClass().getSimpleName() + "," + requestStatus + "," + errorMessage + ","
+				+ fillable + ">";
 	}
 }

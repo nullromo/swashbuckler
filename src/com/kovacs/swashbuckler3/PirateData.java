@@ -1,6 +1,7 @@
 package com.kovacs.swashbuckler3;
 
 import java.util.AbstractMap.SimpleEntry;
+import java.util.regex.Pattern;
 import java.util.ArrayList;
 import com.kovacs.swashbuckler.Utility;
 
@@ -12,8 +13,8 @@ public class PirateData extends Requestable
 	/*
 	 * Stats to represent character traits.
 	 */
-	private int strength, endurance, constitution, expertise;
-	private Dexterity dexterity;
+	private final int strength, endurance, constitution, expertise;
+	private final Dexterity dexterity;
 	private String name;
 
 	/*
@@ -64,15 +65,12 @@ public class PirateData extends Requestable
 		requestedItems.add(new SimpleEntry<String, Object>("Body hit points", Integer.class));
 		requestedItems.add(new SimpleEntry<String, Object>("Left arm hit points", Integer.class));
 		requestedItems.add(new SimpleEntry<String, Object>("Right arm hit points", Integer.class));
-		Fillable fillable = new Fillable(requestedItems);
-		return new Request(player, this, fillable);
+		return new Request(player, this, new Fillable(requestedItems));
 	}
 
 	@Override
 	protected Requestable parseRequestInternal(Request r)
 	{
-		if (!r.isComplete())
-			throw new RuntimeException("You cannot parse an incomplete request.");
 		Fillable source = r.getFillable();
 		this.name = (String) source.get("Name");
 		this.head = (int) source.get("Head hit points");
@@ -90,6 +88,28 @@ public class PirateData extends Requestable
 		return Requestable.createRequest(PirateData.class, player);
 	}
 
+	/*
+	 * Convenience method for parsing requests.
+	 */
+	public static PirateData parseRequest(Request r)
+	{
+		return (PirateData) Requestable.parseRequest(r);
+	}
+	
+	/*
+	 * Tells whether or not this pirate's name is valid.
+	 */
+	public boolean nameValid()
+	{
+		if(name.length() > 32 || name.length() < 2)
+			return false;		
+		if(!Pattern.compile("[a-zA-Z]+( )?([a-zA-Z]+)?").matcher(name).matches())
+			return false;
+		if(Utility.isProfane(name))
+			return false;
+		return true;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -102,21 +122,25 @@ public class PirateData extends Requestable
 
 	public void damageHead(int damage)
 	{
+		Utility.assertPositive(damage);
 		head -= damage;
 	}
 
 	public void damageLeftArm(int damage)
 	{
+		Utility.assertPositive(damage);
 		leftArm -= damage;
 	}
 
 	public void damageRightArm(int damage)
 	{
+		Utility.assertPositive(damage);
 		rightArm -= damage;
 	}
 
 	public void damageBody(int damage)
 	{
+		Utility.assertPositive(damage);
 		body -= damage;
 	}
 

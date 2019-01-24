@@ -15,6 +15,11 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import com.kovacs.swashbuckler3.PirateData.Dexterity;
 
+/*
+ * A pop-up for filling out requests.
+ */
+// TODO: this will eventually probably go away or be massively changed once the
+// graphics phase begins.
 public class GUIRequest extends JFrame
 {
 	private static final long serialVersionUID = 395704055704493561L;
@@ -79,10 +84,9 @@ public class GUIRequest extends JFrame
 	 */
 	private JPanel createComponent(String name, Object o)
 	{
-		// System.out.println("creating component: " + name + " as " + o);
 		JPanel box = new JPanel();
 		box.setLayout(new GridLayout());
-		box.add(new JLabel((name.substring(0, 1).toUpperCase().concat(name.substring(1))).replace('_', ' ')));
+		box.add(new JLabel(name));
 		if (o instanceof Class<?>)
 			neededItems.add(box);
 		if (o.equals(Integer.class))
@@ -105,9 +109,7 @@ public class GUIRequest extends JFrame
 		}
 		else if (o instanceof Dexterity)
 		{
-			JComboBox<Dexterity> v = new JComboBox<Dexterity>();
-			v.addItem((Dexterity) o);
-			box.add(v);
+			box.add(new JComboBox<Dexterity>(new Dexterity[] { (Dexterity) o }));
 		}
 		else
 			throw new RuntimeException("Unsupported GUI Fillable type: " + o);

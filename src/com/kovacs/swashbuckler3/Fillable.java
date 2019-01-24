@@ -46,9 +46,7 @@ public class Fillable
 	public void reset()
 	{
 		for (String key : map.keySet())
-		{
 			map.put(key, map.get(key).getClass());
-		}
 	}
 
 	/*

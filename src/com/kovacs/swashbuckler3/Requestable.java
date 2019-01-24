@@ -41,6 +41,8 @@ public abstract class Requestable
 	 */
 	public static Requestable parseRequest(Request r)
 	{
+		if (!r.isComplete())
+			throw new RuntimeException("You cannot parse an incomplete request.");
 		return r.getTarget().parseRequestInternal(r);
 	}
 }
