@@ -12,6 +12,27 @@ import com.kovacs.swashbuckler3.Request.RequestStatus;
 public class Player implements Runnable
 {
 	/*
+	 * Gives each player a unique ID number.
+	 */
+	private static int nextID;
+
+	/*
+	 * The unique ID of this player.
+	 */
+	private final int ID;
+
+	public Player()
+	{
+		ID = ++nextID;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Player " + ID;
+	}
+
+	/*
 	 * List of pirates this player controls.
 	 */
 	private ArrayList<PirateData> pirates = new ArrayList<>();
@@ -168,7 +189,7 @@ public class Player implements Runnable
 	{
 		return !out.isEmpty();
 	}
-	
+
 	public void addPirate(PirateData p)
 	{
 		pirates.add(p);

@@ -1,5 +1,7 @@
 package com.kovacs.swashbuckler3;
 
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -16,10 +18,10 @@ public class Fillable
 	 */
 	private HashMap<String, Object> map = new HashMap<>();
 
-	public Fillable(RequestedItem... items)
+	public Fillable(ArrayList<SimpleEntry<String, Object>> items)
 	{
-		for (RequestedItem item : items)
-			map.put(item.name, item.value);
+		for (SimpleEntry<String, Object> item : items)
+			map.put(item.getKey(), item.getValue());
 	}
 
 	/*
@@ -37,13 +39,13 @@ public class Fillable
 		map.put(s, o);
 		return this;
 	}
-	
+
 	/*
 	 * Un-fills all the items in the fillable.
 	 */
 	public void reset()
 	{
-		for(String key:map.keySet())
+		for (String key : map.keySet())
 		{
 			map.put(key, map.get(key).getClass());
 		}
