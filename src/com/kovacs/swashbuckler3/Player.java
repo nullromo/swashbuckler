@@ -176,7 +176,7 @@ public class Player implements Runnable
 	 */
 	public boolean hasResponse()
 	{
-		return !out.isEmpty() || waitingForResponse;
+		return !out.isEmpty();
 	}
 
 	public void addPirate(PirateData p)

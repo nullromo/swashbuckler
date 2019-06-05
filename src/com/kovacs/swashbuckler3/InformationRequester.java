@@ -13,7 +13,7 @@ public class InformationRequester
 	/*
 	 * A reference to the list of all players from the engine.
 	 */
-	private ArrayList<Player> players;
+	private ArrayList<Player> players = new ArrayList<>();
 
 	/*
 	 * A list of all the requests that are to be filled.
@@ -28,7 +28,6 @@ public class InformationRequester
 
 	public InformationRequester(int numPlayers)
 	{
-		players = new ArrayList<>();
 		for (int i = 0; i < numPlayers; i++)
 			players.add(new Player());
 		for (Player p : players)

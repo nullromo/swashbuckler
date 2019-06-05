@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.kovacs.swashbuckler.game.Board;
-import com.kovacs.swashbuckler.game.Order;
 import com.kovacs.swashbuckler.game.Plan;
 import com.kovacs.swashbuckler.game.entity.Pirate;
 import com.kovacs.swashbuckler.packets.BoardPacket;
@@ -24,6 +23,7 @@ import com.kovacs.swashbuckler.packets.PlanAcceptedPacket;
 import com.kovacs.swashbuckler.packets.RequestPacket;
 import com.kovacs.swashbuckler.packets.ResponsePacket;
 import com.kovacs.swashbuckler3.Engine;
+import com.kovacs.swashbuckler3.Order;
 import com.kovacs.swashbuckler3.PirateData.Dexterity;
 
 /*

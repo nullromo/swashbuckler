@@ -5,8 +5,8 @@ import java.awt.List;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import javax.swing.JWindow;
-import com.kovacs.swashbuckler.game.Order;
-import com.kovacs.swashbuckler.game.OrderType;
+import com.kovacs.swashbuckler3.Order;
+import com.kovacs.swashbuckler3.Order.OrderType;
 
 public class Menu extends JWindow implements ItemListener
 {
@@ -110,7 +110,7 @@ public class Menu extends JWindow implements ItemListener
 	{
 		this.step = step;
 	}
-	
+
 	/*
 	 * Makes the menu not visible so that it goes away
 	 */

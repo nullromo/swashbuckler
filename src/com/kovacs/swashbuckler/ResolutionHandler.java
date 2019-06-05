@@ -2,8 +2,8 @@ package com.kovacs.swashbuckler;
 
 import java.util.HashMap;
 import com.kovacs.swashbuckler.game.Board;
-import com.kovacs.swashbuckler.game.Order;
 import com.kovacs.swashbuckler.game.Plan;
+import com.kovacs.swashbuckler3.Order;
 
 /*
  * Decides what actions to take to resolve a turn.

@@ -1,10 +1,11 @@
-package com.kovacs.swashbuckler.game;
+package com.kovacs.swashbuckler3;
 
 /*
  * Represents an order that can be given to a pirate.
  */
 public enum Order
 {
+
 	/*
 	 * These are all the possible orders that pirates can be given.
 	 */
@@ -76,6 +77,11 @@ public enum Order
 		this.rests = rests;
 		this.orderType = orderType;
 	}
+
+	public enum OrderType
+	{
+		ACTION, MOVEMENT, SWORDPLAY, NONE
+	};
 
 	public String getName()
 	{

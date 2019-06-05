@@ -72,11 +72,11 @@ public class PirateData extends Requestable
 	protected Requestable parseRequestInternal(Request r)
 	{
 		Fillable source = r.getFillable();
-		this.name = (String) source.get("Name");
-		this.head = (int) source.get("Head hit points");
-		this.body = (int) source.get("Body hit points");
-		this.leftArm = (int) source.get("Left arm hit points");
-		this.rightArm = (int) source.get("Right arm hit points");
+		name = (String) source.get("Name");
+		head = (int) source.get("Head hit points");
+		body = (int) source.get("Body hit points");
+		leftArm = (int) source.get("Left arm hit points");
+		rightArm = (int) source.get("Right arm hit points");
 		return this;
 	}
 

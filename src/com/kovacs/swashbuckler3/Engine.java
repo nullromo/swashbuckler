@@ -20,7 +20,7 @@ public class Engine implements Runnable
 	/*
 	 * Number of players in the game.
 	 */
-	public static final int PLAYERS = 2;
+	public static final int NUM_PLAYERS = 2;
 
 	/*
 	 * Keeps track of the current game turn and step.
@@ -30,7 +30,7 @@ public class Engine implements Runnable
 	/*
 	 * The engine's instance of the information requester.
 	 */
-	private InformationRequester informationRequester = new InformationRequester(PLAYERS);
+	private InformationRequester informationRequester = new InformationRequester(NUM_PLAYERS);
 
 	/*
 	 * Temporary main method to run the engine for testing.
@@ -99,7 +99,13 @@ public class Engine implements Runnable
 	 */
 	private void acquirePlans()
 	{
-		// Request[] plans = informationRequester.request();
+		for (Player p : informationRequester.getPlayers())
+			informationRequester.request(PlanData.createRequest(p));
+		informationRequester.collect();
+		for(Request request: informationRequester.getRequests())
+		{
+			System.out.println(request);
+		}
 		// TODO: do something with the plans
 		System.out.println("Plans aquired for turn " + currentTurn + ".");
 	}

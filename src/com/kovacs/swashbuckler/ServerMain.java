@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import com.kovacs.swashbuckler.game.Board;
 import com.kovacs.swashbuckler.game.BoardCoordinate;
-import com.kovacs.swashbuckler.game.Order;
 import com.kovacs.swashbuckler.game.Plan;
 import com.kovacs.swashbuckler.game.entity.Entity;
 import com.kovacs.swashbuckler.game.entity.Pirate;
@@ -22,6 +21,7 @@ import com.kovacs.swashbuckler.packets.PlanAcceptedPacket;
 import com.kovacs.swashbuckler.packets.RequestPacket;
 import com.kovacs.swashbuckler.packets.ResponsePacket;
 import com.kovacs.swashbuckler3.Engine;
+import com.kovacs.swashbuckler3.Order;
 
 /*
  * This is the main server-side application. It hosts an array list of
