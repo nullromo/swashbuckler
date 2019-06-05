@@ -75,7 +75,7 @@ public class InformationRequester
 				check(r);
 				if(!r.errorMessage.equals(""))
 				{
-					r.getFillable().reset();
+					r.reset();
 					player.put(r);
 				}
 			}
@@ -129,7 +129,7 @@ public class InformationRequester
 	private boolean isComplete()
 	{
 		for (Request r : requests)
-			if (!r.isComplete())
+			if (!r.isSubmitted())
 				return false;
 		for (Player p : players)
 			if (p.hasResponse())

@@ -33,6 +33,11 @@ public class Request implements ActionListener
 	 * A way for the engine and the player to tag requests with some extra data.
 	 */
 	public String errorMessage;
+	
+	/*
+	 * True once the request has been submitted by the user.
+	 */
+	private boolean submitted;
 
 	/*
 	 * The gui for this request.
@@ -49,6 +54,7 @@ public class Request implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
+		errorMessage = "";
 		setGUIEnabled(false);
 		for (JPanel p : gui.neededItems)
 		{
@@ -63,6 +69,7 @@ public class Request implements ActionListener
 				value = ((JTextField) valueHolder).getText();
 			fillable.fill(name, value);
 		}
+		submitted = true;
 		player.send(this);
 		closeGUI();
 	}
@@ -94,13 +101,21 @@ public class Request implements ActionListener
 		gui.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		gui.dispatchEvent(new WindowEvent(gui, WindowEvent.WINDOW_CLOSING));
 	}
+	
+	/*
+	 * Should be called when the request was invalid and needs to be sent back to the user. 
+	 */
+	public void reset()
+	{
+		submitted = false;
+	}
 
 	/*
-	 * Returns true if the required information has been filled.
+	 * Returns true if the request has been submitted by the user.
 	 */
-	public boolean isComplete()
+	public boolean isSubmitted()
 	{
-		return fillable.isFilled();
+		return submitted;
 	}
 
 	/*

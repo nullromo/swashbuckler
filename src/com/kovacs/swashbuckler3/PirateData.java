@@ -38,6 +38,7 @@ public class PirateData extends Requestable
 	public enum Dexterity
 	{
 		RIGHT_HANDED, LEFT_HANDED, AMBIDEXTROUS;
+
 		@Override
 		public String toString()
 		{
@@ -60,11 +61,16 @@ public class PirateData extends Requestable
 	protected Request createRequestInternal(Player player)
 	{
 		ArrayList<SimpleEntry<String, Object>> requestedItems = new ArrayList<>();
-		requestedItems.add(new SimpleEntry<String, Object>("Name", String.class));
-		requestedItems.add(new SimpleEntry<String, Object>("Head hit points", Integer.class));
-		requestedItems.add(new SimpleEntry<String, Object>("Body hit points", Integer.class));
-		requestedItems.add(new SimpleEntry<String, Object>("Left arm hit points", Integer.class));
-		requestedItems.add(new SimpleEntry<String, Object>("Right arm hit points", Integer.class));
+		requestedItems.add(new SimpleEntry<String, Object>("Name", "rob bob"));
+		int defaultHead = (int) Math.ceil(constitution / 4.0);
+		requestedItems.add(new SimpleEntry<String, Object>("Head hit points", defaultHead));
+		int defaultBody = (int) Math.ceil(constitution / 3.0);
+		requestedItems.add(new SimpleEntry<String, Object>("Body hit points", defaultBody));
+		double defaultArm = (constitution - defaultHead - defaultBody) / 2.0;
+		requestedItems.add(new SimpleEntry<String, Object>("Left arm hit points",
+				(int) (dexterity == Dexterity.LEFT_HANDED ? Math.ceil(defaultArm) : Math.floor(defaultArm))));
+		requestedItems.add(new SimpleEntry<String, Object>("Right arm hit points",
+				(int) (dexterity == Dexterity.LEFT_HANDED ? Math.floor(defaultArm) : Math.ceil(defaultArm))));
 		return new Request(player, this, new Fillable(requestedItems));
 	}
 
@@ -95,17 +101,17 @@ public class PirateData extends Requestable
 	{
 		return (PirateData) Requestable.parseRequest(r);
 	}
-	
+
 	/*
 	 * Tells whether or not this pirate's name is valid.
 	 */
 	public boolean nameValid()
 	{
-		if(name.length() > 32 || name.length() < 2)
-			return false;		
-		if(!Pattern.compile("[a-zA-Z]+( )?([a-zA-Z]+)?").matcher(name).matches())
+		if (name.length() > 32 || name.length() < 2)
 			return false;
-		if(Utility.isProfane(name))
+		if (!Pattern.compile("[a-zA-Z]+( )?([a-zA-Z]+)?").matcher(name).matches())
+			return false;
+		if (Utility.isProfane(name))
 			return false;
 		return true;
 	}

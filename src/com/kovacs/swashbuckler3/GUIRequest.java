@@ -87,21 +87,16 @@ public class GUIRequest extends JFrame
 		JPanel box = new JPanel();
 		box.setLayout(new GridLayout());
 		box.add(new JLabel(name));
-		if (o instanceof Class<?>)
-			neededItems.add(box);
-		if (o.equals(Integer.class))
+		neededItems.add(box);
+		if (o.equals(Integer.class) || o instanceof Integer)
 		{
-			box.add(new JSpinner());
-		}
-		else if (o instanceof Integer)
-		{
-			JSpinner v = new JSpinner(
-					new SpinnerNumberModel(((Integer) o).intValue(), Integer.MIN_VALUE, Integer.MAX_VALUE, 0));
+			JSpinner v = new JSpinner(new SpinnerNumberModel(o instanceof Integer ? ((Integer) o).intValue() : 0, 0,
+					Integer.MAX_VALUE, 1));
 			box.add(v);
 		}
-		else if (o.equals(String.class))
+		else if (o.equals(String.class) || o instanceof String)
 		{
-			box.add(new JTextField());
+			box.add(new JTextField(o instanceof String ? o.toString() : ""));
 		}
 		else if (o.equals(Dexterity.class))
 		{

@@ -346,4 +346,12 @@ public class Utility
 		}
 		return s.substring(indexOfIP, s.indexOf('"', indexOfIP));
 	}
+	
+	public static String getSimpleClassNameIfClass(Object o)
+	{
+		if(o instanceof Class<?>)
+			return ((Class<?>) o).getSimpleName();
+		else
+			return o.getClass().getSimpleName();
+	}
 }

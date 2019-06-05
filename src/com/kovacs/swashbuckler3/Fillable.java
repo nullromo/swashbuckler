@@ -4,6 +4,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
+import com.kovacs.swashbuckler.Utility;
 
 /*
  * This class is a hash map that only allows fields to be filled once. Any
@@ -29,24 +30,14 @@ public class Fillable
 	 */
 	public Fillable fill(String s, Object o)
 	{
-		if (map.get(s) == null)
+		Object m = map.get(s);
+		if (m == null)
 			throw new RuntimeException("You cannot fill an atribute which does not already exist in a fillable.");
-		if (!(map.get(s) instanceof Class<?>))
-			throw new RuntimeException("You cannot fill an already-filled attribute of a Fillable.");
-		if (!map.get(s).equals(o.getClass()))
-			throw new RuntimeException("You cannot fill a request for <" + ((Class<?>) map.get(s)).getSimpleName()
+		if (!m.equals(o.getClass()) && !m.getClass().equals(o.getClass()))
+			throw new RuntimeException("You cannot fill a request for <" + Utility.getSimpleClassNameIfClass(m)
 					+ "> with an instance of <" + o.getClass().getSimpleName() + ">.");
 		map.put(s, o);
 		return this;
-	}
-
-	/*
-	 * Un-fills all the items in the fillable.
-	 */
-	public void reset()
-	{
-		for (String key : map.keySet())
-			map.put(key, map.get(key).getClass());
 	}
 
 	/*
@@ -63,17 +54,6 @@ public class Fillable
 	public Set<String> getKeys()
 	{
 		return map.keySet();
-	}
-
-	/*
-	 * Returns true if the entire fillable is filled.
-	 */
-	public boolean isFilled()
-	{
-		for (Object o : map.values())
-			if (o instanceof Class<?>)
-				return false;
-		return true;
 	}
 
 	@Override
