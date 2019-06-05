@@ -73,7 +73,7 @@ public class InformationRequester
 				if (r == null)
 					throw new RuntimeException("InformationRequester got a null request from a player.");
 				check(r);
-				if(!r.errorMessage.equals(""))
+				if (!r.errorMessage.equals(""))
 				{
 					r.reset();
 					player.put(r);
@@ -83,8 +83,8 @@ public class InformationRequester
 	}
 
 	/*
-	 * Sets the requests's errorMessage field to an error message
-	 * or an empty string if it passed all checks.
+	 * Sets the requests's errorMessage field to an error message or an empty
+	 * string if it passed all checks. Also parses the request.
 	 */
 	private void check(Request request)
 	{

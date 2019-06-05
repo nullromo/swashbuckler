@@ -15,7 +15,8 @@ public abstract class Requestable
 	/*
 	 * This method takes a request and returns an instance of the implementing
 	 * class. It uses the Fillable in the request to fill out the Request's
-	 * target.
+	 * target. The target is modified and can then be simply extracted from the
+	 * request via the getTarget() method.
 	 */
 	protected abstract Requestable parseRequestInternal(Request r);
 
@@ -42,7 +43,7 @@ public abstract class Requestable
 	public static Requestable parseRequest(Request r)
 	{
 		if (!r.isSubmitted())
-			throw new RuntimeException("You cannot parse an incomplete request.");
+			throw new RuntimeException("You cannot parse an incomplete or unsubmitted request.");
 		return r.getTarget().parseRequestInternal(r);
 	}
 }

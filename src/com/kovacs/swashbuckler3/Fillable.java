@@ -7,10 +7,9 @@ import java.util.Set;
 import com.kovacs.swashbuckler.Utility;
 
 /*
- * This class is a hash map that only allows fields to be filled once. Any
- * uninitialized fields are instances of a Class object corresponding to the
- * information needed. Once they are filled they cannot be modified. The
- * fillable is marked as filled when none of the fields are Classes.
+ * This class is basically a map. An unfilled map entry can either be an
+ * instance of the appropriate class, or it can be a Class corresponding to the
+ * value that needs to be filled in.
  */
 public class Fillable
 {

@@ -41,7 +41,6 @@ public class Engine implements Runnable
 		Engine e = new Engine();
 		e.setup();
 		new Thread(e).start();
-		e.cleanup();
 	}
 
 	public Engine()
@@ -66,7 +65,7 @@ public class Engine implements Runnable
 		for (Request request : informationRequester.getRequests())
 			request.getPlayer().addPirate((PirateData) request.getTarget());
 		System.out.println("Pirates obtained!");
-		//TODO: do something, then flush() the requester
+		informationRequester.flush();
 	}
 
 	/*
@@ -88,11 +87,13 @@ public class Engine implements Runnable
 	{
 		for (currentTurn = 1; currentTurn <= MAX_TURNS; currentTurn++)
 		{
+			System.out.println("RUNNING TURN " + currentTurn);
 			acquirePlans();
 			for (currentStep = 1; currentStep <= 6; currentStep++)
 				resolveStep();
 		}
 		System.out.println("Game completed");
+		cleanup();
 	}
 
 	/*
@@ -103,7 +104,7 @@ public class Engine implements Runnable
 		for (Player p : informationRequester.getPlayers())
 			informationRequester.request(PlanData.createRequest(p));
 		informationRequester.collect();
-		for(Request request: informationRequester.getRequests())
+		for (Request request : informationRequester.getRequests())
 		{
 			System.out.println(request);
 		}
