@@ -2,7 +2,6 @@ package com.kovacs.swashbuckler3;
 
 import java.util.ArrayList;
 import com.kovacs.swashbuckler.Utility;
-import com.kovacs.swashbuckler3.Request.RequestStatus;
 
 /*
  * This class is instantiated by the engine. It handles communication between
@@ -74,14 +73,18 @@ public class InformationRequester
 				if (r == null)
 					throw new RuntimeException("InformationRequester got a null request from a player.");
 				check(r);
-				player.put(r);
+				if(!r.errorMessage.equals(""))
+				{
+					r.getFillable().reset();
+					player.put(r);
+				}
 			}
 		}
 	}
 
 	/*
-	 * Mutates the request according to what was wrong. Sets it to FILLED if
-	 * everything is okay.
+	 * Sets the requests's errorMessage field to an error message
+	 * or an empty string if it passed all checks.
 	 */
 	private void check(Request request)
 	{
@@ -98,13 +101,6 @@ public class InformationRequester
 						+ p.getConstitution() + "). ";
 			if (!p.nameValid())
 				request.errorMessage += "Pirate names must be between 2 and 32 letter-only characters, and must consist of one or two non-profane words. ";
-		}
-		if (request.errorMessage.equals(""))
-			request.requestStatus = RequestStatus.FILLED;
-		else
-		{
-			request.requestStatus = RequestStatus.ERROR;
-			request.getFillable().reset();
 		}
 	}
 

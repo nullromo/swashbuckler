@@ -66,6 +66,7 @@ public class Engine implements Runnable
 		for (Request request : informationRequester.getRequests())
 			request.getPlayer().addPirate((PirateData) request.getTarget());
 		System.out.println("Pirates obtained!");
+		//TODO: do something, then flush() the requester
 	}
 
 	/*

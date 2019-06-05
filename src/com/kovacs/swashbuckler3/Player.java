@@ -2,9 +2,8 @@ package com.kovacs.swashbuckler3;
 
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import com.kovacs.swashbuckler.Utility;
-import com.kovacs.swashbuckler3.Request.RequestStatus;
 
 /*
  * Represents a human player in a game. This is a server-side class that handles
@@ -37,17 +36,12 @@ public class Player implements Runnable
 	 * Whether this thread is running or not.
 	 */
 	private boolean running;
-
-	/*
-	 * Whether the player is waiting for an acknowledgement from the engine.
-	 */
-	private boolean waitingForResponse;
-
+	
 	/*
 	 * Communication channel between this player and the engine.
 	 */
-	private BlockingQueue<Request> in = new PriorityBlockingQueue<>();
-	private BlockingQueue<Request> out = new PriorityBlockingQueue<>();
+	private BlockingQueue<Request> in = new LinkedBlockingQueue<>();
+	private BlockingQueue<Request> out = new LinkedBlockingQueue<>();
 
 	/*
 	 * Stops the client from running and cleans up.
@@ -75,42 +69,18 @@ public class Player implements Runnable
 			// If there are no requests in the queue, do nothing.
 			if (in.isEmpty())
 				continue;
-			// If we are waiting to get a FILLED or ERROR back, and there isn't
-			// one, then do nothing. Keep in mind that all ERROR and FILLED
-			// requests will have higher priority that UNFILLED ones, so they
-			// will be moved to the front of the queue if they exist in it at
-			// all.
-			if (waitingForResponse && in.peek().requestStatus == RequestStatus.UNFILLED)
-				continue;
 			Request r = accept();
 			if (r == null)
 				throw new RuntimeException("Null request received by player.");
-			if (r.requestStatus == RequestStatus.UNFILLED)
-			{
-				System.out.println(this + " got an unfilled request: " + r);
-				waitingForResponse = true;
-				r.createGUI();
-			}
-			else if (r.requestStatus == RequestStatus.ERROR)
-			{
-				System.out.println(this + " got an error request: " + r);
-				waitingForResponse = true;
-				r.setGUIEnabled(true);
-				r.setGUIMessage(r.errorMessage);
-			}
-			else if (r.requestStatus == RequestStatus.FILLED)
-			{
-				System.out.println(this + " got an ack: " + r);
-				r.closeGUI();
-				waitingForResponse = false;
-			}
+			System.out.println(this + " got an unfilled request: " + r);
+			r.createGUI();
 		}
 	}
 
 	/*
 	 * Way for the player to send something.
 	 */
-	public void send(Request request)
+	public synchronized void send(Request request)
 	{
 		try
 		{
@@ -125,7 +95,7 @@ public class Player implements Runnable
 	/*
 	 * Way for the player to receive something.
 	 */
-	private Request accept()
+	private synchronized Request accept()
 	{
 		Request request = null;
 		try
@@ -142,7 +112,7 @@ public class Player implements Runnable
 	/*
 	 * Way to send something to the player.
 	 */
-	public void put(Request request)
+	public synchronized void put(Request request)
 	{
 		try
 		{
@@ -157,7 +127,7 @@ public class Player implements Runnable
 	/*
 	 * Way to grab responses from the player.
 	 */
-	public Request take()
+	public synchronized Request take()
 	{
 		Request request = null;
 		try

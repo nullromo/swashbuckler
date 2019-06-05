@@ -12,7 +12,7 @@ import javax.swing.JTextField;
 /*
  * Represents one packet of information that the engine needs from a player.
  */
-public class Request implements ActionListener, Comparable<Request>
+public class Request implements ActionListener
 {
 	/*
 	 * The player that needs to fill this request.
@@ -33,21 +33,6 @@ public class Request implements ActionListener, Comparable<Request>
 	 * A way for the engine and the player to tag requests with some extra data.
 	 */
 	public String errorMessage;
-
-	// A request can be UNFILLED, and then a player marks it as FILLED and sends
-	// it back. Then if there are issues, the engine marks it as ERROR and
-	// unfills the request. Then the player can refill them properly. Finally,
-	// once the engine wants to accept the request, it sends back an empty
-	// FILLED state request.
-	public enum RequestStatus
-	{
-		ERROR, FILLED, UNFILLED
-	};
-
-	/*
-	 * The status of this request.
-	 */
-	public RequestStatus requestStatus = RequestStatus.UNFILLED;
 
 	/*
 	 * The gui for this request.
@@ -79,12 +64,7 @@ public class Request implements ActionListener, Comparable<Request>
 			fillable.fill(name, value);
 		}
 		player.send(this);
-	}
-
-	@Override
-	public int compareTo(Request other)
-	{
-		return this.requestStatus.ordinal() - other.requestStatus.ordinal();
+		closeGUI();
 	}
 
 	/*
@@ -102,6 +82,7 @@ public class Request implements ActionListener, Comparable<Request>
 	{
 		gui = new GUIRequest(player.toString());
 		gui.submitButton.addActionListener(this);
+		setGUIMessage(errorMessage);
 		gui.create(fillable);
 	}
 
@@ -157,7 +138,7 @@ public class Request implements ActionListener, Comparable<Request>
 	@Override
 	public String toString()
 	{
-		return "<" + player + "," + target.getClass().getSimpleName() + "," + requestStatus + "," + errorMessage + ","
+		return "<" + player + "," + target.getClass().getSimpleName() + "," + errorMessage + ","
 				+ fillable + ">";
 	}
 }
