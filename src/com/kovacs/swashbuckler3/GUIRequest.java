@@ -3,6 +3,7 @@ package com.kovacs.swashbuckler3;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -105,6 +106,12 @@ public class GUIRequest extends JFrame
 		else if (o instanceof Dexterity)
 		{
 			box.add(new JComboBox<Dexterity>(new Dexterity[] { (Dexterity) o }));
+		}
+		else if (o.equals(Order.class) || o instanceof Order)
+		{
+			JComboBox<?> v = new JComboBox<>(Order.values());
+			v.setSelectedItem(o);
+			box.add(v);
 		}
 		else
 			throw new RuntimeException("Unsupported GUI Fillable type: " + o);

@@ -12,7 +12,7 @@ public class Pirate extends Entity implements Serializable
 	private static final long serialVersionUID = -1096156252334655485L;
 
 	// TODO: this is a mess right now.
-	public PirateData pirateData = new PirateData();
+	public PirateData pirateData = new PirateData(null);
 
 	public Pirate(int head, int leftArm, int rightArm, int body, int strength, int endurance, int constitution,
 			int expertise, Dexterity dexterity, String name, BoardCoordinate... boardCoordinates)

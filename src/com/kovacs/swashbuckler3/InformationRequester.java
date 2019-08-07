@@ -73,7 +73,7 @@ public class InformationRequester
 				if (r == null)
 					throw new RuntimeException("InformationRequester got a null request from a player.");
 				check(r);
-				if (!r.errorMessage.equals(""))
+				if (!r.message.equals(""))
 				{
 					r.reset();
 					player.put(r);
@@ -83,24 +83,54 @@ public class InformationRequester
 	}
 
 	/*
-	 * Sets the requests's errorMessage field to an error message or an empty
-	 * string if it passed all checks. Also parses the request.
+	 * Sets the requests's message field to an error message or an empty string
+	 * if it passed all checks. Also parses the request.
 	 */
 	private void check(Request request)
 	{
-		request.errorMessage = "";
+		request.message = "";
 		if (request.getTarget() instanceof PirateData)
 		{
 			PirateData p = PirateData.parseRequest(request);
 			if (p.getBody() <= 0 || p.getHead() <= 0 || p.getLeftArm() <= 0 || p.getRightArm() <= 0)
-				request.errorMessage += "Each area must have a positive number of hit points. ";
+				request.message += "Each area must have a positive number of hit points. ";
 			if (Math.abs((p.getLeftArm() - p.getRightArm())) > 1)
-				request.errorMessage += "The difference between the left and right arms cannot exceed 1 hit point. ";
+				request.message += "The difference between the left and right arms cannot exceed 1 hit point. ";
 			if (p.getBody() + p.getHead() + p.getLeftArm() + p.getRightArm() != p.getConstitution())
-				request.errorMessage += "The sum of all hit point areas must equal the pirate's constitution ("
+				request.message += "The sum of all hit point areas must equal the pirate's constitution ("
 						+ p.getConstitution() + "). ";
 			if (!p.nameValid())
-				request.errorMessage += "Pirate names must be between 2 and 32 letter-only characters, and must consist of one or two non-profane words. ";
+				request.message += "Pirate names must be between 2 and 32 letter-only characters, and must"
+						+ " consist of one or two non-profane words. ";
+		}
+		else if (request.getTarget() instanceof PlanData)
+		{
+			PlanData p = PlanData.parseRequest(request);
+			for (int i = 0; i < 6; i++)
+			{
+				Order order = p.getOrders()[i];
+				if (i < p.getInitialRests() && order != Order.REST)
+					request.message += "Because " + p.getInitialRests() + " are carried over, step " + (i + 1)
+							+ " must be a rest. ";
+				if (order == Order.UNPLANNED)
+				{
+					request.message += "Step " + (i + 1) + " has not been planned. ";
+					break;
+				}
+				for (int restStep = 0; restStep < order.getRests(); restStep++)
+				{
+					try
+					{
+						if (p.getOrders()[i + 1 + restStep] != Order.REST)
+							request.message += "Because step " + (i + 1) + " is " + order + ", step "
+									+ (i + 2 + restStep) + " must be a rest. ";
+					}
+					catch (ArrayIndexOutOfBoundsException e)
+					{
+						;
+					}
+				}
+			}
 		}
 	}
 

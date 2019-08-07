@@ -3,6 +3,7 @@ package com.kovacs.swashbuckler3;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,8 +33,8 @@ public class Request implements ActionListener
 	/*
 	 * A way for the engine and the player to tag requests with some extra data.
 	 */
-	public String errorMessage;
-	
+	public String message;
+
 	/*
 	 * True once the request has been submitted by the user.
 	 */
@@ -49,12 +50,14 @@ public class Request implements ActionListener
 		this.player = player;
 		this.target = target;
 		this.fillable = fillable;
+		if (target instanceof PirateData)
+			message = "Constitution = " + ((PirateData) target).getConstitution();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
-		errorMessage = "";
+		message = "";
 		setGUIEnabled(false);
 		for (JPanel p : gui.neededItems)
 		{
@@ -67,6 +70,8 @@ public class Request implements ActionListener
 				value = ((JSpinner) valueHolder).getValue();
 			else if (valueHolder instanceof JTextField)
 				value = ((JTextField) valueHolder).getText();
+			else if (valueHolder instanceof JComboBox<?>)
+				value = ((JComboBox<?>) valueHolder).getSelectedItem();
 			fillable.fill(name, value);
 		}
 		submitted = true;
@@ -89,7 +94,7 @@ public class Request implements ActionListener
 	{
 		gui = new GUIRequest(player.toString());
 		gui.submitButton.addActionListener(this);
-		setGUIMessage(errorMessage);
+		setGUIMessage(message);
 		gui.create(fillable);
 	}
 
@@ -101,9 +106,10 @@ public class Request implements ActionListener
 		gui.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		gui.dispatchEvent(new WindowEvent(gui, WindowEvent.WINDOW_CLOSING));
 	}
-	
+
 	/*
-	 * Should be called when the request was invalid and needs to be sent back to the user. 
+	 * Should be called when the request was invalid and needs to be sent back
+	 * to the user.
 	 */
 	public void reset()
 	{
@@ -153,7 +159,6 @@ public class Request implements ActionListener
 	@Override
 	public String toString()
 	{
-		return "<" + player + "," + target.getClass().getSimpleName() + "," + errorMessage + ","
-				+ fillable + ">";
+		return "<" + player + "," + target.getClass().getSimpleName() + "," + message + "," + fillable + ">";
 	}
 }

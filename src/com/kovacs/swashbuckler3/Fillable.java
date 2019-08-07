@@ -2,8 +2,9 @@ package com.kovacs.swashbuckler3;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import com.kovacs.swashbuckler.Utility;
 
 /*
@@ -16,7 +17,7 @@ public class Fillable
 	/*
 	 * Map that contains all the fillable mappings.
 	 */
-	private HashMap<String, Object> map = new HashMap<>();
+	private Map<String, Object> map = new TreeMap<>();
 
 	public Fillable(ArrayList<SimpleEntry<String, Object>> items)
 	{

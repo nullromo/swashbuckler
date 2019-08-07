@@ -102,4 +102,10 @@ public enum Order
 	{
 		return orderType;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return getName();
+	}
 }

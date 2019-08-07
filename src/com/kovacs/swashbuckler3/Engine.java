@@ -102,7 +102,7 @@ public class Engine implements Runnable
 	private void acquirePlans()
 	{
 		for (Player p : informationRequester.getPlayers())
-			informationRequester.request(PlanData.createRequest(p));
+			informationRequester.request(PlanData.createRequest(p, new PlanDataArgs(2)));
 		informationRequester.collect();
 		for (Request request : informationRequester.getRequests())
 		{
@@ -110,6 +110,7 @@ public class Engine implements Runnable
 		}
 		// TODO: do something with the plans
 		System.out.println("Plans aquired for turn " + currentTurn + ".");
+		informationRequester.flush();
 	}
 
 	/*

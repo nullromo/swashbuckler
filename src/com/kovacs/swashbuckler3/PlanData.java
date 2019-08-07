@@ -13,22 +13,32 @@ public class PlanData extends Requestable
 	 */
 	private Order[] orders = new Order[6];
 
-	public PlanData()
+	/*
+	 * Number of initial rest steps that are carried over into this plan.
+	 */
+	private final int requiredInitialRests;
+
+	public PlanData(PlanDataArgs args)
 	{
 		for (int i = 0; i < 6; i++)
 			orders[i] = Order.UNPLANNED;
+		this.requiredInitialRests = args.initialRests;
+	}
+
+	public PlanData()
+	{
+		this(new PlanDataArgs(0));
 	}
 
 	@Override
 	protected Request createRequestInternal(Player player)
 	{
 		ArrayList<SimpleEntry<String, Object>> requestedItems = new ArrayList<>();
-		requestedItems.add(new SimpleEntry<String, Object>("Step 1", Order.class));
-		requestedItems.add(new SimpleEntry<String, Object>("Step 2", Order.class));
-		requestedItems.add(new SimpleEntry<String, Object>("Step 3", Order.class));
-		requestedItems.add(new SimpleEntry<String, Object>("Step 4", Order.class));
-		requestedItems.add(new SimpleEntry<String, Object>("Step 5", Order.class));
-		requestedItems.add(new SimpleEntry<String, Object>("Step 6", Order.class));
+		for (int i = 0; i < 6; i++)
+		{
+			requestedItems.add(new SimpleEntry<String, Object>("Step " + (i + 1),
+					i + 1 <= requiredInitialRests ? Order.REST : Order.UNPLANNED));
+		}
 		return new Request(player, this, new Fillable(requestedItems));
 	}
 
@@ -44,9 +54,14 @@ public class PlanData extends Requestable
 	/*
 	 * Convenience method for creating requests.
 	 */
+	public static Request createRequest(Player player, RequestArgs args)
+	{
+		return Requestable.createRequest(PlanData.class, player, args);
+	}
+	
 	public static Request createRequest(Player player)
 	{
-		return Requestable.createRequest(PlanData.class, player);
+		return Requestable.createRequest(PlanData.class, player, PlanDataArgs.defaultArgs());
 	}
 
 	/*
@@ -64,5 +79,15 @@ public class PlanData extends Requestable
 		for (int i = 1; i < 6; i++)
 			s += ", " + orders[i];
 		return s + "]";
+	}
+
+	public Order[] getOrders()
+	{
+		return orders;
+	}
+
+	public int getInitialRests()
+	{
+		return requiredInitialRests;
 	}
 }

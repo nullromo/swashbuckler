@@ -46,7 +46,7 @@ public class PirateData extends Requestable
 		}
 	};
 
-	public PirateData()
+	public PirateData(PirateDataArgs args)
 	{
 		strength = Utility.rollDie() + Utility.rollDie() + Utility.rollDie();
 		endurance = Utility.rollDie() + Utility.rollDie() + Utility.rollDie();
@@ -89,9 +89,14 @@ public class PirateData extends Requestable
 	/*
 	 * Convenience method for creating requests.
 	 */
+	public static Request createRequest(Player player, RequestArgs args)
+	{
+		return Requestable.createRequest(PirateData.class, player, args);
+	}
+	
 	public static Request createRequest(Player player)
 	{
-		return Requestable.createRequest(PirateData.class, player);
+		return Requestable.createRequest(PirateData.class, player, PirateDataArgs.defaultArgs());
 	}
 
 	/*

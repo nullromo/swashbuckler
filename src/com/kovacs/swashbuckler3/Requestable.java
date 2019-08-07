@@ -1,5 +1,7 @@
 package com.kovacs.swashbuckler3;
 
+import java.lang.reflect.InvocationTargetException;
+
 /*
  * Classes that are requestable are things that the server might need to ask
  * players for.
@@ -23,14 +25,27 @@ public abstract class Requestable
 	/*
 	 * This is how you use the function externally.
 	 */
-	public static Request createRequest(Class<? extends Requestable> type, Player player)
+	public static Request createRequest(Class<? extends Requestable> type, Player player, RequestArgs args)
 	{
 		Request r = null;
 		try
 		{
-			r = type.newInstance().createRequestInternal(player);
+			r = type.getDeclaredConstructor(args.getClass()).newInstance(args).createRequestInternal(player);
 		}
-		catch (InstantiationException | IllegalAccessException e)
+		catch (NoSuchMethodException e)
+		{
+			e.printStackTrace();
+			try
+			{
+				r = type.newInstance().createRequestInternal(player);
+			}
+			catch (InstantiationException | IllegalAccessException e1)
+			{
+				e1.printStackTrace();
+			}
+		}
+		catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| SecurityException e)
 		{
 			e.printStackTrace();
 		}
